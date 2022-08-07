@@ -15,7 +15,8 @@
 			"name": "Pragmatic",
 			"type": "python",
 			"request": "launch",
-			"module": "Pragmatic"
+			"module": "Pragmatic",
+			"args": ["--Test"]
 		}
 	]
 }

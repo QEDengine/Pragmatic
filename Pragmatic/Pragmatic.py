@@ -6,16 +6,12 @@
 
 __version__ = "0.0.1"
 
-
-import sys
-from .Stuff import Stuff
+from . import Stuff
+from .Registry import Registry
+from .ArgParser import ParseArgs, Test
 
 
 def Main():
-	print("Executing bootstrap version %s." % __version__)
-	print("List of argument strings: %s" % sys.argv[1:])
-	print("Stuff and Boo():\n%s\n%s" % (Stuff, Boo()))
+	print(f"Running pragmatic version {__version__}.")
 
-
-class Boo(Stuff):
-	pass
+	ParseArgs()
