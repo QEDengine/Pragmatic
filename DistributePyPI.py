@@ -1,5 +1,5 @@
 import subprocess
-import os
+import shutil
 import glob
 
 print('Creating source distribution')
@@ -10,6 +10,6 @@ tarball = glob.glob('dist/Pragmatic-*.*.*.tar.gz')[0]
 subprocess.run(f'twine upload {tarball}')
 
 print('Deleting distribution files')
-dirs_to_remove = ['build', 'dist', 'Pragmatic.egg-info']
+dirs_to_remove = ['dist', 'Pragmatic.egg-info']
 for dir in dirs_to_remove:
-	os.rmdir(dir)
+	shutil.rmtree(dir)
