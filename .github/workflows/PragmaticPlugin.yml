@@ -49,6 +49,7 @@ jobs:
         with:
             files: PragmaticPlugin.zip
             name: ${{ github.event.inputs.version}}
+            tag_name: ${{ github.event.inputs.version}}
 
       - name: Publish tagged release
         uses: softprops/action-gh-release@v1
