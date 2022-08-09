@@ -51,6 +51,22 @@ jobs:
             name: ${{ github.event.inputs.version}}
             tag_name: ${{ github.event.inputs.version}}
 
+      - name: Delete manual tag
+        uses: actions/github-script@v3
+        if: ${{ github.event.inputs.version}} != ""
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}          
+          script: |
+            try {
+                await github.git.deleteRef({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  ref: "tags/${{ github.event.inputs.version}}"
+                })
+            } catch (e) {
+              console.log("The nightly tag doesn't exist yet: " + e)
+            }
+
       - name: Publish tagged release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
