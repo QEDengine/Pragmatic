@@ -39,7 +39,13 @@ jobs:
 
       - name: Zip
         shell: cmd
-        run: 7z a PragmaticPlugin.zip ./PragmaticPlugin/Build/RelWithDebInfo/*
+        run: |
+          dir
+          dir PragmaticPlugin
+          dir PragmaticPlugin\Build
+          dir PragmaticPlugin\Build\RelWithDebInfo
+          call 7z a PragmaticPlugin.zip PragmaticPlugin\Build\RelWithDebInfo\*
+
 
       - name: Publish manual release
         uses: softprops/action-gh-release@v1

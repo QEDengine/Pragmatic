@@ -3,3 +3,4 @@ install
 dist
 *.egg-info
 test_environment
+PragmaticPlugin.zip
