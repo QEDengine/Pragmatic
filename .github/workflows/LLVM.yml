@@ -1,0 +1,54 @@
+name: LLVM
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version'     
+        required: true
+
+jobs:
+  windowsBuild:
+    name: Windows Build
+    runs-on: windows-2019
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+          token: ${{secrets.CI}}
+
+      - name: Print dirs
+        shell: cmd
+        run: |
+          dir
+
+      - name: Configure
+        shell: cmd
+        run: |
+          call Scripts\LLVM\Configure.py
+
+      - name: Build
+        shell: cmd
+        run: |
+          call Scripts\LLVM\Build.py
+
+      - name: Install
+        shell: cmd
+        run: |
+          call Scripts\LLVM\Install.py
+
+      - name: Zip
+        shell: cmd
+        run: 7z a LLVM.zip ./Install/*
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(${{ github.event.inputs.version}}, "llvm")
+        env:
+          GITHUB_TOKEN: ${{secrets.CI}}
+        with:
+          files: LLVM.zip
+          name: ${{ github.event.inputs.version}}
+          tag_name: ${{ github.event.inputs.version}}
