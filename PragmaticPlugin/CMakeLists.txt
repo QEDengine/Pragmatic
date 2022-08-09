@@ -1,12 +1,14 @@
-project(BOTs LANGUAGES CXX)
+cmake_minimum_required(VERSION 3.24)
+
+project(PragmaticPlugin LANGUAGES CXX)
 
 # Output
 set(PROJECT "${PROJECT_SOURCE_DIR}/Build/")
 set(LIBRARY_OUTPUT_PATH "${PROJECT_SOURCE_DIR}/Build/")
 
 # LLVM
-include_directories("${ROOT_DIR}/Tools/LLVM/include" "${ROOT_DIR}/Dependencies/JSON/single_include")
-link_directories("${ROOT_DIR}/Tools/LLVM/lib/")
+include_directories("${PROJECT_SOURCE_DIR}/../Install/include" "${PROJECT_SOURCE_DIR}/../External/json/single_include")
+link_directories("${PROJECT_SOURCE_DIR}/../Install/lib/")
 
 # Project type
 add_library(PragmaticPlugin SHARED "Source/Pragmatic.cpp" "Source/SourcePragmaHandler.cpp" "Source/Globals.cpp" "Source/BuildTypePragmaHandler.cpp" "Source/StandardPragmaHandler.cpp" "Source/DirectoryPragmaHandler.cpp" "Source/PythonPragmaHandler.cpp" "Source/PreamblePragmaHandler.cpp")
