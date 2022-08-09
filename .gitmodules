@@ -1,5 +1,5 @@
-[submodule "External\\llvm-project"]
-	path = External\\llvm-project
+[submodule "External/llvm-project"]
+	path = External/llvm-project
 	url = https://github.com/llvm/llvm-project
 	branch = release/14.x
 [submodule "External/json"]
