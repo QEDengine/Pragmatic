@@ -27,6 +27,11 @@ jobs:
         run: |
           dir
 
+      - name: Get LLVM
+        shell: cmd
+        run: |
+          call python ./PragmaticPlugin/Scripts/GetLLVM.py
+
       - name: Configure
         shell: cmd
         run: |
