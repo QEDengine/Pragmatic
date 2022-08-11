@@ -1,6 +1,5 @@
 import progressbar
 import urllib.request
-import os
 import zipfile
 import pathlib
 

@@ -27,6 +27,11 @@ jobs:
         run: |
           dir
 
+      - name: Get pipreqs
+        shell: cmd
+        run: |
+          pip install progressbar
+
       - name: Get LLVM
         shell: cmd
         run: |
