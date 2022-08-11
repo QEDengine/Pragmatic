@@ -1,6 +1,9 @@
 name: LLVM
 
 on:
+  push:
+    tags:
+      - "llvm-*-*"
   workflow_dispatch:
     inputs:
       version:
@@ -43,12 +46,20 @@ jobs:
         shell: cmd
         run: 7z a LLVM.zip ./Install/*
 
-      - name: Publish release
+      - name: Publish manual release
         uses: softprops/action-gh-release@v1
-        if: startsWith(${{ github.event.inputs.version}}, "llvm")
+        if: ${{ github.event.inputs.version}} != ""
         env:
           GITHUB_TOKEN: ${{secrets.CI}}
         with:
           files: LLVM.zip
           name: ${{github.event.inputs.version}}
           tag_name: ${{github.event.inputs.version}}
+
+      - name: Publish tagged release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GITHUB_TOKEN: ${{secrets.CI}}
+        with:
+          files: LLVM.zip
