@@ -7,8 +7,8 @@ set(PROJECT "${PROJECT_SOURCE_DIR}/Build/")
 set(LIBRARY_OUTPUT_PATH "${PROJECT_SOURCE_DIR}/Build/")
 
 # LLVM
-include_directories("${PROJECT_SOURCE_DIR}/../Install/include" "${PROJECT_SOURCE_DIR}/../External/json/single_include")
-link_directories("${PROJECT_SOURCE_DIR}/../Install/lib/")
+include_directories("${PROJECT_SOURCE_DIR}/../Pragmatic/data/LLVM/include" "${PROJECT_SOURCE_DIR}/../External/json/single_include")
+link_directories("${PROJECT_SOURCE_DIR}/../Pragmatic/data/LLVM/lib/")
 
 # Project type
 add_library(PragmaticPlugin SHARED "Source/Pragmatic.cpp" "Source/SourcePragmaHandler.cpp" "Source/Globals.cpp" "Source/BuildTypePragmaHandler.cpp" "Source/StandardPragmaHandler.cpp" "Source/DirectoryPragmaHandler.cpp" "Source/PythonPragmaHandler.cpp" "Source/PreamblePragmaHandler.cpp")
