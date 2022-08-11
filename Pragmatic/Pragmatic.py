@@ -6,11 +6,13 @@
 
 __version__ = "0.0.19"
 
+import imp
 import os
 import pathlib
 
 from numpy import true_divide
 from .GetRelease import Get
+from .graph_build import graph_build 
 import click
 
 def GetDataDir():
@@ -31,7 +33,13 @@ def download():
 @click.command()
 @click.argument('path', type=click.Path(exists=True, file_okay=True, dir_okay=True, resolve_path=True))
 def build(path):
-    click.echo(click.format_filename(path))
+	print(f'cwd : {os.getcwd()}')
+	formatted_path = click.format_filename(path)
+	ii = graph_build.preprocess_file(formatted_path)
+	o = graph_build.build_file(ii)
+	objs = []
+	objs.append(o)
+	graph_build.link(objs)
 
 def main():
 	print(f"Running pragmatic version {__version__}.")

@@ -16,7 +16,7 @@
 			"type": "python",
 			"request": "launch",
 			"module": "Pragmatic",
-			"args": ["build", "."]
+			"args": ["build", "Tests/tmp/Hello.cpp"]
 		}
 	]
 }
