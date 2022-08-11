@@ -27,7 +27,7 @@ jobs:
         run: |
           dir
 
-      - name: Get pipreqs
+      - name: Get progressbar
         shell: cmd
         run: |
           pip install progressbar
@@ -35,17 +35,17 @@ jobs:
       - name: Get LLVM
         shell: cmd
         run: |
-          call python ./PragmaticPlugin/Scripts/GetLLVM.py
+          call python ./PragmaticPlugin/Scripts/get_LLVM.py
 
       - name: Configure
         shell: cmd
         run: |
-          call python ./PragmaticPlugin/Scripts/Configure.py
+          call python ./PragmaticPlugin/Scripts/configure.py
 
       - name: Build
         shell: cmd
         run: |
-          call python ./PragmaticPlugin/Scripts/Build.py
+          call python ./PragmaticPlugin/Scripts/build.py
 
       - name: Zip
         shell: cmd
@@ -54,7 +54,7 @@ jobs:
           dir PragmaticPlugin
           dir PragmaticPlugin\Build
           dir PragmaticPlugin\Build\RelWithDebInfo
-          call 7z a PragmaticPlugin.zip PragmaticPlugin\Build\RelWithDebInfo\*
+          call 7z a PragmaticPlugin.zip .\PragmaticPlugin\Build\RelWithDebInfo\*
 
 
       - name: Publish manual release

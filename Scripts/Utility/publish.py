@@ -1,6 +1,10 @@
 import subprocess
 import shutil
 import glob
+import os
+
+os.chdir(os.path.join(os.path.dirname(__file__), '../..'))
+print(f'cwd : {os.getcwd()}')
 
 print('Creating source distribution')
 subprocess.run('python setup.py sdist')
