@@ -17,6 +17,20 @@
 			"request": "launch",
 			"module": "Pragmatic",
 			"args": ["build", "Tests/tmp/Hello.cpp"]
+		},
+		{
+			"name": "Pragmatic CLI",
+			"type": "python",
+			"request": "launch",
+			"module": "Pragmatic",
+			"args": ["${input:args}"]
 		}
-	]
+	],
+	"inputs": [
+		{
+		  "id": "args",
+		  "type": "promptString",
+		  "description": "Argments"
+		}
+	  ]
 }

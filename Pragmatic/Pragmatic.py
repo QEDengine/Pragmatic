@@ -10,10 +10,10 @@ import imp
 import os
 import pathlib
 
-from numpy import true_divide
 from .GetRelease import Get
-from .graph_build import graph_build 
+from .graph_build import Graph_build 
 import click
+import shutil
 
 def GetDataDir():
 	dir = os.path.dirname(os.path.realpath(__file__))
@@ -25,21 +25,17 @@ def cli():
 
 @click.command()
 def download():
-	if (not pathlib.Path(GetDataDir()).exists()):
-		os.makedirs(GetDataDir())
-		Get('LLVM', 'llvm-0.1')
-		Get('PragmaticPlugin', '0.1')
-
+	shutil.rmtree(GetDataDir())
+	os.makedirs(GetDataDir())
+	Get('LLVM', 'llvm-14-1')
+	Get('PragmaticPlugin', '0.1')
+	
 @click.command()
 @click.argument('path', type=click.Path(exists=True, file_okay=True, dir_okay=True, resolve_path=True))
 def build(path):
 	print(f'cwd : {os.getcwd()}')
 	formatted_path = click.format_filename(path)
-	ii = graph_build.preprocess_file(formatted_path)
-	o = graph_build.build_file(ii)
-	objs = []
-	objs.append(o)
-	graph_build.link(objs)
+	Graph_build.build(formatted_path)
 
 def main():
 	print(f"Running pragmatic version {__version__}.")

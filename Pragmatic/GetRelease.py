@@ -39,4 +39,6 @@ def Get(name, release):
 			zip_ref.extract(member=file, path=os.path.join(Pragmatic.GetDataDir(), name))
 			show_progress(x, 1, total)
 
+	# Delete zip
+	os.remove(downloadPath)
 	print('Done!')
