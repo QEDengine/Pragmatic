@@ -20,7 +20,7 @@ meta_name = 'meta.json'
 current_meta_path = None
 project_name = None
 
-class node_type(Enum):
+class Node_type(Enum):
 	target = 0
 	source = 1
 	parsed = 2
@@ -30,26 +30,26 @@ class node_type(Enum):
 
 	def infer_from_extension(ext: str) -> Self:
 		if ext == 'cpp':
-			return node_type.source
+			return Node_type.source
 		elif ext == 'ii':
-			return node_type.parsed
+			return Node_type.parsed
 		elif ext == 'obj':
-			return node_type.object
+			return Node_type.object
 		elif ext == 'exe':
-			return node_type.binary
+			return Node_type.binary
 		elif ext == 'py':
-			return node_type.script
-		return node_type.target
+			return Node_type.script
+		return Node_type.target
 
 class Node(Slots):
-	def __init__(self, path: str = '', type: node_type = None):
-		if type != node_type.target:
+	def __init__(self, path: str = '', type: Node_type = None):
+		if type != Node_type.target:
 			self.path: Path = Path(path)
 			self.name = self.path.stem
 			self.extension = self.path.suffix.split('.')[1]
 			self.dir = self.path.parent
 			self.full_name = self.path.name
-		self.type = type if type is not None else node_type.infer_from_extension(self.extension)
+		self.type = type if type is not None else Node_type.infer_from_extension(self.extension)
 
 		self.cmd = ''
 
@@ -83,8 +83,8 @@ class Command_generator:
 		return (command, output_path)
 	def generate_command(node: Node) -> str:
 		generators = {
-					node_type.source: Command_generator.preprocess_command,
-					node_type.parsed: Command_generator.build_command
+					Node_type.source: Command_generator.preprocess_command,
+					Node_type.parsed: Command_generator.build_command
 				}
 		return generators.get(node.type, lambda node: (None, None))(node)
 
@@ -97,7 +97,7 @@ class Graph_build:
 		project_name = Path(path).stem
 
 		# add default target
-		target = Node(type=node_type.target)
+		target = Node(type=Node_type.target)
 		target.full_name = project_name
 		graph.add_node(target.full_name, data = target)
 		
@@ -119,7 +119,7 @@ class Graph_build:
 				node_data: Node = leaf_data['data']
 				command, output_path = Command_generator.generate_command(node_data)
 				if command is not None:
-					new_child = Node(output_path, node_type(node_data.type.value + 1))
+					new_child = Node(output_path, Node_type(node_data.type.value + 1))
 					new_child.cmd = command
 					graph.add_node(new_child.full_name, data=new_child)
 					graph.add_edge(leaf, new_child.full_name)
@@ -134,7 +134,7 @@ class Graph_build:
 		if link_cmd is None:
 			raise Exception('No link command generated')
 		else:
-			new_child = Node(output_path, node_type.binary)
+			new_child = Node(output_path, Node_type.binary)
 			new_child.cmd = link_cmd
 			graph.add_node(new_child.full_name, data=new_child)
 		for leaf, _ in leaf_nodes:
@@ -162,7 +162,3 @@ def test_graph():
 
 	leaf_nodes = [node for node in graph.nodes() if graph.in_degree(node)!=0 and graph.out_degree(node)==0]
 	print(leaf_nodes)
-
-
-# test_graph()
-Graph_build.build('C:/Users/balas/source/QEDengine/Pragmatic/Tests/tmp/Hello.cpp')
