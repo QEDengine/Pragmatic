@@ -47,7 +47,7 @@ class Node_type(Enum):
 class Node(Slots):
 	def __init__(self, path: str = '', type: Node_type = None):
 		if type != Node_type.target:
-			self.path: Path = Path(path)
+			self.path: Path = Path(path).absolute()
 			self.name = self.path.stem
 			self.extension = self.path.suffix.split('.')[1]
 			self.dir = self.path.parent
@@ -113,6 +113,7 @@ class Graph_build:
 		graph.add_edge(target.full_name, initial_node.full_name)
 		
 		# iterate over graph
+		print('-------------------------------')
 		iterate = True
 		while iterate:
 			# iterate graph
@@ -125,15 +126,16 @@ class Graph_build:
 
 			# add new source nodes
 			for source in meta['Source']:
-				name = Path(source).name
-				if not name in graph.nodes():
-					source_node = Node(source, Node_type.source)
+				source_path: Path = Path(path).parent / Path(source)
+				if not source_path.name in graph.nodes():
+					source_node = Node(str(source_path), Node_type.source)
 					graph.add_node(source_node.full_name, data = source_node)
 					graph.add_edge(target.full_name, source_node.full_name)
 					iterate = True
 		# Run build commands over graph
 		Graph_build.generate_link_node(graph)
 		Graph_build.run_graph(graph)
+
 
 	def generate_graph(graph: nx.Graph):
 		# iterate over graph
@@ -178,18 +180,6 @@ class Graph_build:
 				node_data: Node = nx.get_node_attributes(graph, 'data')[node]
 				if filter is None or node_data.type == filter:
 					if node_data.run(): counter += 1
+		print('-------------------------------')
 		return counter > 0
 
-
-
-
-def test_graph():
-	graph = nx.DiGraph()
-	graph.add_edges_from([("root", "a"), ("a", "b"), ("a", "e"), ("b", "c"), ("b", "d"), ("d", "e"), ('b', 'e')])
-	
-	print(f'nodes : {graph.nodes()}')
-	for path in nx.all_simple_paths(graph, 'root', 'e'):
-		print(path)
-
-	leaf_nodes = [node for node in graph.nodes() if graph.in_degree(node)!=0 and graph.out_degree(node)==0]
-	print(leaf_nodes)
