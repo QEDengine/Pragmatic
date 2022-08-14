@@ -38,7 +38,7 @@
 				"Tests/Hello/Main.cpp",
 				"-o", "Temp/Main.ii",
 				"-fplugin=${workspaceFolder}/PragmaticPlugin/Build/RelWithDebInfo/PragmaticPlugin.dll",
-				"-DPRAGMATIC_FILE_PATH=\"${workspaceFolder}/Tests/Hello/Meta.json\"",
+				"-DPRAGMATIC_FILE_PATH=\"${workspaceFolder}/Temp/Meta.json\"",
 			]
 		}
 	],
