@@ -1,3 +1,4 @@
+from sys import meta_path
 from autoslot import Slots
 from typing import Tuple
 from typing_extensions import Self
@@ -7,6 +8,7 @@ import pathlib
 from pathlib import Path
 import subprocess
 import networkx as nx
+import json
 
 # Const variables
 pragmatic_package_dir = os.path.dirname(__file__)
@@ -19,6 +21,7 @@ meta_name = 'meta.json'
 # Runtime variables
 current_meta_path = None
 project_name = None
+meta: json = None
 
 class Node_type(Enum):
 	target = 0
@@ -53,9 +56,11 @@ class Node(Slots):
 
 		self.cmd = ''
 
-	def run(self):
+	def run(self) -> bool:
 		if self.cmd != '' and not self.path.exists():
 			subprocess.run(self.cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+			return True
+		return False
 
 class Command_generator:
 	def preprocess_command(node: Node) -> Tuple[str, str]:		
@@ -91,6 +96,7 @@ class Command_generator:
 class Graph_build:
 	def build(path: str):
 		global project_name
+		global meta
 
 		graph = nx.DiGraph()
 
@@ -106,7 +112,27 @@ class Graph_build:
 		graph.add_node(initial_node.full_name, data = initial_node)
 		graph.add_edge(target.full_name, initial_node.full_name)
 		
-		Graph_build.generate_graph(graph)
+		# iterate over graph
+		iterate = True
+		while iterate:
+			# iterate graph
+			Graph_build.generate_graph(graph)
+			iterate = Graph_build.run_graph(graph, filter=Node_type.parsed)
+			
+			# load meta
+			meta_file = open(current_meta_path)
+			meta = json.load(meta_file)
+
+			# add new source nodes
+			for source in meta['Source']:
+				name = Path(source).name
+				if not name in graph.nodes():
+					source_node = Node(source, Node_type.source)
+					graph.add_node(source_node.full_name, data = source_node)
+					graph.add_edge(target.full_name, source_node.full_name)
+					iterate = True
+		# Run build commands over graph
+		Graph_build.generate_link_node(graph)
 		Graph_build.run_graph(graph)
 
 	def generate_graph(graph: nx.Graph):
@@ -119,35 +145,40 @@ class Graph_build:
 				node_data: Node = leaf_data['data']
 				command, output_path = Command_generator.generate_command(node_data)
 				if command is not None:
-					new_child = Node(output_path, Node_type(node_data.type.value + 1))
-					new_child.cmd = command
-					graph.add_node(new_child.full_name, data=new_child)
-					graph.add_edge(leaf, new_child.full_name)
+					new_node = Node(output_path, Node_type(node_data.type.value + 1))
+					new_node.cmd = command
+					graph.add_node(new_node.full_name, data=new_node)
+					graph.add_edge(leaf, new_node.full_name)
 					iterate_graph = True
-
-		# do one more pass for linking step
+	
+	def generate_link_node(graph: nx.Graph):
 		leaf_nodes = [[node, node_data] for node, node_data in graph.nodes().data() if graph.in_degree(node) != 0 and graph.out_degree(node) == 0]
 		obj_nodes: list[Node] = []
 		for _, node_data in leaf_nodes:
-			obj_nodes.append(node_data['data'])
+			leaf_node_data: Node = node_data['data']
+			if leaf_node_data.type == Node_type.object:
+				obj_nodes.append(leaf_node_data)
 		link_cmd, output_path = Command_generator.link_command(obj_nodes)
 		if link_cmd is None:
 			raise Exception('No link command generated')
 		else:
-			new_child = Node(output_path, Node_type.binary)
-			new_child.cmd = link_cmd
-			graph.add_node(new_child.full_name, data=new_child)
-		for leaf, _ in leaf_nodes:
-			graph.add_edge(leaf, new_child.full_name)
+			link_node = Node(output_path, Node_type.binary)
+			link_node.cmd = link_cmd
+			graph.add_node(link_node.full_name, data=link_node)
+		for leaf, leaf_data in leaf_nodes:
+			if leaf_data['data'].type == Node_type.object:
+				graph.add_edge(leaf, link_node.full_name)
 
-
-	def run_graph(graph: nx.Graph):
+	def run_graph(graph: nx.Graph, filter: Node_type = None) -> bool:
+		counter = 0
 		topological_generations = [sorted(generation) for generation in nx.topological_generations(graph)]
 		for generation in topological_generations:
 			print(generation)
 			for node in generation:
 				node_data: Node = nx.get_node_attributes(graph, 'data')[node]
-				node_data.run()
+				if filter is None or node_data.type == filter:
+					if node_data.run(): counter += 1
+		return counter > 0
 
 
 

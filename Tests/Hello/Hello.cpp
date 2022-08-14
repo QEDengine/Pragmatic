@@ -1,10 +1,11 @@
-#pragma type executable
 
-#include <iostream>
+// Source header
+#include "Hello.hpp"
 
-using namespace std;
-
-int main()
+namespace Hello
 {
-	cout << "Hello World!" << endl;
+	std::string Hello(std::string name)
+	{
+		return "Hello " + name + "!";
+	}
 }
