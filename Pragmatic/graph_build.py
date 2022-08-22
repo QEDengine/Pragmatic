@@ -1,4 +1,5 @@
 import graphlib
+import imp
 import shutil
 from autoslot import Slots
 from typing import List, Tuple
@@ -9,8 +10,11 @@ import pathlib
 from pathlib import Path
 import subprocess
 import networkx as nx
+from networkx.readwrite import json_graph
 import json
 from .FileUtils import hash_str, hash_file
+from json import JSONEncoder
+from . import json_patcher
 
 # Const variables
 pragmatic_package_dir = os.path.dirname(__file__)
@@ -48,6 +52,9 @@ class Node_type(Enum):
 			return Node_type.script
 		return Node_type.target
 
+	def __json__(self, **options):
+		return self.name
+
 class Node(Slots):
 	def __init__(self, path: str = '', type: Node_type = None):
 		if type != Node_type.target:
@@ -56,6 +63,8 @@ class Node(Slots):
 			self.extension = self.path.suffix.split('.')[1]
 			self.dir = self.path.parent
 			self.full_name = self.path.name
+		else:
+			self.path = None
 		self.type = type if type is not None else Node_type.infer_from_extension(self.extension)
 
 		self.cmd = ''
@@ -63,8 +72,17 @@ class Node(Slots):
 	def run(self) -> bool:
 		if self.cmd != '' and not self.path.exists():
 			subprocess.run(self.cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
 			return True
 		return False
+
+	def __json__(self, **options):
+		slotDict = { key : getattr(self, key, None) for key in self.__slots__ }
+
+		slotDict['path'] = str(slotDict['path']) if slotDict['path'] is not None else None
+		slotDict['dir'] = str(slotDict['dir']) if slotDict['dir'] is not None else None
+
+		return slotDict
 
 class FlagConverter(Slots):
 	def Convert(meta_key: str) -> str:
@@ -128,6 +146,7 @@ class Graph_build:
 			graph = nx.DiGraph()
 			project_name = Path(path).stem
 
+
 			# add default target
 			target = Node(type=Node_type.target)
 			target.full_name = project_name
@@ -162,6 +181,11 @@ class Graph_build:
 						regenerate = True
 						print('full rebuild required')
 						break
+
+				# save graph
+				meta['Graph'] = json_graph.node_link_data(graph)
+				with open(current_meta_path, 'w') as outfile:
+					json.dump(meta, outfile, indent=4)
 
 				# add new source nodes
 				for source in meta['Source']:
