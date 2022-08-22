@@ -1,6 +1,7 @@
-from sys import meta_path
+import graphlib
+import shutil
 from autoslot import Slots
-from typing import Tuple
+from typing import List, Tuple
 from typing_extensions import Self
 from enum import Enum
 import os
@@ -9,6 +10,7 @@ from pathlib import Path
 import subprocess
 import networkx as nx
 import json
+from .FileUtils import hash_str, hash_file
 
 # Const variables
 pragmatic_package_dir = os.path.dirname(__file__)
@@ -17,6 +19,8 @@ clang_exe = f'{data_dir}/LLVM/bin/clang.exe'
 pragmatic_meta_macro = 'PRAGMATIC_FILE_PATH'
 pragmatic_dll = f'{data_dir}/PragmaticPlugin/PragmaticPlugin.dll'
 meta_name = 'meta.json'
+build_options_hash_str = 'BuildOptionsHash'
+build_options_str = 'BuildOptions'
 
 # Runtime variables
 current_meta_path = None
@@ -62,6 +66,20 @@ class Node(Slots):
 			return True
 		return False
 
+class FlagConverter(Slots):
+	def Convert(meta_key: str) -> str:
+		if meta_key not in meta[build_options_str]:
+			return ''
+
+		if meta_key == 'Standard':
+			return f'-std={meta[build_options_str]["Standard"]}'
+
+	def ConvertAll() -> List[str]:
+		if meta == None:
+			return []
+		return [FlagConverter.Convert(key) for key in meta[build_options_str]]
+
+
 class Command_generator:
 	def preprocess_command(node: Node) -> Tuple[str, str]:		
 		global current_meta_path
@@ -69,11 +87,17 @@ class Command_generator:
 			current_meta_path = f'{node.dir}/{meta_name}'
 
 		flags = ['-E', f'-D{pragmatic_meta_macro}={current_meta_path}']
+		flags.extend(FlagConverter.ConvertAll())
+		flags = [i for i in flags if i is not None]
+
 		output_path = f'{node.dir}/{node.name}.ii'
 		command = f'{clang_exe} {" ".join(flags)} -fplugin={pragmatic_dll} {node.path} -o {output_path}'
 		return (command, output_path)
 	def build_command(node: Node) -> Tuple[str, str]:
 		flags = ['-c']
+		flags.extend(FlagConverter.ConvertAll())
+		flags = [i for i in flags if i is not None]
+
 		output_path = f'{node.dir}/{node.name}.obj'
 		command = f'{clang_exe} {" ".join(flags)} {node.path} -o {output_path}'
 		return (command, output_path)
@@ -98,40 +122,59 @@ class Graph_build:
 		global project_name
 		global meta
 
-		graph = nx.DiGraph()
+		regenerate = True
+		while regenerate:
+			regenerate = False
+			graph = nx.DiGraph()
+			project_name = Path(path).stem
 
-		project_name = Path(path).stem
-
-		# add default target
-		target = Node(type=Node_type.target)
-		target.full_name = project_name
-		graph.add_node(target.full_name, data = target)
-		
-		# add initial node
-		initial_node = Node(path)
-		graph.add_node(initial_node.full_name, data = initial_node)
-		graph.add_edge(target.full_name, initial_node.full_name)
-		
-		# iterate over graph
-		print('-------------------------------')
-		iterate = True
-		while iterate:
-			# iterate graph
-			Graph_build.generate_graph(graph)
-			iterate = Graph_build.run_graph(graph, filter=Node_type.parsed)
+			# add default target
+			target = Node(type=Node_type.target)
+			target.full_name = project_name
+			graph.add_node(target.full_name, data = target)
 			
-			# load meta
-			meta_file = open(current_meta_path)
-			meta = json.load(meta_file)
+			# add initial node
+			initial_node = Node(path)
+			graph.add_node(initial_node.full_name, data = initial_node)
+			graph.add_edge(target.full_name, initial_node.full_name)
+			
+			# iterate over graph
+			print('-------------------------------')
+			iterate = True
+			while iterate:
+				# iterate graph
+				Graph_build.generate_graph(graph)
+				iterate = Graph_build.run_graph(graph, filter=Node_type.parsed)
+				
+				# load meta
+				meta_file = open(current_meta_path)
+				meta = json.load(meta_file)
+				if build_options_hash_str not in meta:
+					meta[build_options_hash_str] = hash_str(json.dumps(meta[build_options_str]))
+					with open(current_meta_path, 'w') as outfile:
+						json.dump(meta, outfile, indent=4)
+				else:
+					if meta[build_options_hash_str] != hash_str(json.dumps(meta[build_options_str])):
+						meta[build_options_hash_str] = hash_str(json.dumps(meta[build_options_str]))
+						with open(current_meta_path, 'w') as outfile:
+							json.dump(meta, outfile, indent=4)
+						Graph_build.clean(graph)
+						regenerate = True
+						print('full rebuild required')
+						break
 
-			# add new source nodes
-			for source in meta['Source']:
-				source_path: Path = Path(path).parent / Path(source)
-				if not source_path.name in graph.nodes():
-					source_node = Node(str(source_path), Node_type.source)
-					graph.add_node(source_node.full_name, data = source_node)
-					graph.add_edge(target.full_name, source_node.full_name)
-					iterate = True
+				# add new source nodes
+				for source in meta['Source']:
+					source_path: Path = Path(path).parent / Path(source)
+					if not source_path.name in graph.nodes():
+						source_node = Node(str(source_path), Node_type.source)
+						graph.add_node(source_node.full_name, data = source_node)
+						graph.add_edge(target.full_name, source_node.full_name)
+						iterate = True
+
+			if regenerate:
+				continue
+		
 		# Run build commands over graph
 		Graph_build.generate_link_node(graph)
 		Graph_build.run_graph(graph)
@@ -183,3 +226,10 @@ class Graph_build:
 		print('-------------------------------')
 		return counter > 0
 
+	def clean(graph: nx.DiGraph, delete_meta: bool = False):
+		for node, node_data in graph.nodes().data():
+			if node_data['data'].cmd != '' and os.path.exists(node_data['data'].path):
+				os.remove(node_data['data'].path)
+		if delete_meta:
+			if os.path.exists(current_meta_path):
+				os.remove(current_meta_path)

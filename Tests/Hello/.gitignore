@@ -1,3 +1,6 @@
 *
 !.gitignore
 !Hello.cpp
+!Hello.hpp
+!Main.cpp
+!Main.hpp
