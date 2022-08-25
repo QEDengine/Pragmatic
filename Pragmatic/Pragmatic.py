@@ -3,9 +3,6 @@
 
 """Pragmatic.Pragmatic: provides entry point main()."""
 
-
-__version__ = "0.0.19"
-
 import os
 import pathlib
 
@@ -13,6 +10,7 @@ from .GetRelease import Get
 from .Graph_build import Graph_build 
 import click
 import shutil
+from .__init__ import __version__
 
 def GetDataDir():
 	dir = os.path.dirname(os.path.realpath(__file__))

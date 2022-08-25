@@ -8,8 +8,8 @@ from setuptools import setup, find_packages
 
 # Read version from Pragmatic.py
 version = re.search(
-	'^__version__\s*=\s*"(.*)"',
-	open('Pragmatic/Pragmatic.py').read(),
+	r'^__version__\s*=\s*"(.*)"',
+	open('Pragmatic/__init__.py').read(),
 	re.M
 	).group(1)
 
