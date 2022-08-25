@@ -35,7 +35,7 @@ jobs:
       - name: Build & Upload
         shell: cmd
         run: |
-          call python ./PragmaticPlugin/Scripts/build.py SquareRoundCurly ${{secrets.PYPI}}
+          call python .\Scripts\Utility\publish.py SquareRoundCurly ${{secrets.PYPI}}
 
       - uses: EndBug/add-and-commit@v9
         with:
