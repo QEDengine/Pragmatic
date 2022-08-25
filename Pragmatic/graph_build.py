@@ -15,6 +15,7 @@ import json
 from .FileUtils import hash_str, hash_file
 from json import JSONEncoder
 from . import json_patcher
+from Pragmatic import FileUtils
 
 # Const variables
 pragmatic_package_dir = os.path.dirname(__file__)
@@ -64,17 +65,20 @@ class Node(Slots):
 			self.dir = self.path.parent
 			self.full_name = self.path.name
 		else:
-			self.path = None
+			self.path: Path = None
 		self.type = type if type is not None else Node_type.infer_from_extension(self.extension)
 
-		self.cmd = ''
+		self.cmd: str = ''
+		self.hash: str = ''
 
 	def run(self) -> bool:
-		if self.cmd != '' and not self.path.exists():
+		return_value = False
+		if self.cmd != '' and (not self.path.exists() or self.hash != FileUtils.hash_file(str(self.path))):
 			subprocess.run(self.cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-			return True
-		return False
+			return_value = True
+		if self.path != None and self.path.exists() and self.hash != FileUtils.hash_file(str(self.path)):
+			self.hash = FileUtils.hash_file(str(self.path))
+		return return_value
 
 	def __json__(self, **options):
 		slotDict = { key : getattr(self, key, None) for key in self.__slots__ }

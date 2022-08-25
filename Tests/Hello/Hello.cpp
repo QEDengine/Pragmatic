@@ -1,7 +1,10 @@
 
+
+
 // Source header
 #include "Hello.hpp"
 
+// Build config
 #pragma standard "c++17"
 
 namespace Hello
