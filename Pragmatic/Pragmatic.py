@@ -6,15 +6,12 @@
 import os
 import pathlib
 
-from .GetRelease import Get
+from .GetRelease import GetReleaseFile
 from .Graph_build import Graph_build 
 import click
 import shutil
 from .__init__ import __version__
-
-def GetDataDir():
-	dir = os.path.dirname(os.path.realpath(__file__))
-	return os.path.join(dir, 'data')
+from .FileUtils import GetDataDir
 
 @click.group()
 def cli():
@@ -24,8 +21,8 @@ def cli():
 def download():
 	shutil.rmtree(GetDataDir())
 	os.makedirs(GetDataDir())
-	Get('LLVM', 'llvm-14-1')
-	Get('PragmaticPlugin', '0.1')
+	GetReleaseFile('LLVM', 'llvm-14-1')
+	GetReleaseFile('PragmaticPlugin', '0.1')
 	
 @click.command()
 @click.argument('path', type=click.Path(exists=True, file_okay=True, dir_okay=True, resolve_path=True))

@@ -1,6 +1,6 @@
 import sys
 sys.path.append('.')
 
-from Pragmatic import GetRelease
+from Pragmatic.GetRelease import GetReleaseFile
 
-GetRelease.Get('LLVM', 'llvm-0.1')
+GetReleaseFile('LLVM', 'llvm-0.1')

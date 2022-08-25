@@ -1,5 +1,6 @@
 import sys
 import hashlib
+import os
 
 
 def hash_file(file_path: str) -> str:
@@ -16,3 +17,7 @@ def hash_str(str: str) -> str:
 	hasher = hashlib.sha1()
 	hasher.update(str.encode('utf-8'))
 	return hasher.hexdigest()
+
+def GetDataDir():
+	dir = os.path.dirname(os.path.realpath(__file__))
+	return os.path.join(dir, 'data')
