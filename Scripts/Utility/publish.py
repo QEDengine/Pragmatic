@@ -8,6 +8,7 @@ from sys import argv
 
 os.chdir(os.path.join(os.path.dirname(__file__), '../..'))
 print(f'cwd : {os.getcwd()}')
+print(f'args : {argv}')
 
 print('Incrementing version')
 version = re.search(
@@ -29,7 +30,7 @@ subprocess.run('python setup.py sdist')
 
 print('Uploading distribution to PyPI')
 tarball = glob.glob('dist/Pragmatic-*.*.*.tar.gz')[0]
-if len(argv) == 2:
+if len(argv) == 3:
 	subprocess.run(f'twine upload {tarball} -u {argv[1]} -p {argv[2]}')
 else:
 	subprocess.run(f'twine upload {tarball}')
