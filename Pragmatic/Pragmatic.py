@@ -7,7 +7,7 @@ import os
 import pathlib
 
 from .GetRelease import GetReleaseFile
-from .Graph_build import Graph_build 
+from .graph_build import Graph_build 
 import click
 import shutil
 from .__init__ import __version__

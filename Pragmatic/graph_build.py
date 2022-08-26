@@ -101,7 +101,6 @@ class FlagConverter(Slots):
 			return []
 		return [FlagConverter.Convert(key) for key in meta[build_options_str]]
 
-
 class Command_generator:
 	def preprocess_command(node: Node) -> Tuple[str, str]:		
 		global current_meta_path
