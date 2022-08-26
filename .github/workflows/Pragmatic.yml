@@ -31,6 +31,7 @@ jobs:
         shell: cmd
         run: |
           pip install twine
+          pip install progressbar
 
       - name: Build & Upload
         shell: cmd
@@ -64,3 +65,45 @@ jobs:
             GITHUB_TOKEN: ${{secrets.CI}}
         with:
             files: Pragmatic.zip
+
+      - name: Get LLVM
+        shell: cmd
+        run: |
+          call python ./PragmaticPlugin/Scripts/get_LLVM.py
+
+      - name: Configure
+        shell: cmd
+        run: |
+          call python ./PragmaticPlugin/Scripts/configure.py
+
+      - name: Build
+        shell: cmd
+        run: |
+          call python ./PragmaticPlugin/Scripts/build.py
+
+      - name: Zip
+        shell: cmd
+        run: |
+          dir
+          dir PragmaticPlugin
+          dir PragmaticPlugin\Build
+          dir PragmaticPlugin\Build\RelWithDebInfo
+          call 7z a PragmaticPlugin.zip .\PragmaticPlugin\Build\RelWithDebInfo\*
+
+      - name: Publish manual release
+        uses: softprops/action-gh-release@v1
+        if: ${{ github.event.inputs.version}} != ""
+        env:
+            GITHUB_TOKEN: ${{secrets.CI}}
+        with:
+            files: PragmaticPlugin.zip
+            name: ${{ github.event.inputs.version}}
+            tag_name: ${{ github.event.inputs.version}}
+
+      - name: Publish tagged release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+            GITHUB_TOKEN: ${{secrets.CI}}
+        with:
+            files: PragmaticPlugin.zip
