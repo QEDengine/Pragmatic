@@ -23,7 +23,7 @@ setup(
 	packages = ["Pragmatic"],
 	entry_points =
 	{
-		"console_scripts": ['Pragmatic = Pragmatic.Pragmatic:Main']
+		"console_scripts": ['Pragmatic = Pragmatic.Pragmatic:main']
 	},
 	version = version,
 	description = "Python command line application bare bones template.",
