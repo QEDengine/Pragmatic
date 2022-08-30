@@ -1,26 +1,28 @@
-import shutil
-from tempfile import tempdir
-from setuptools import setup, Extension
-from setuptools.command.build_ext import build_ext
-from setuptools.command.install_egg_info import install_egg_info
 import os
+import shutil
 import pathlib
 import urllib.request
 import zipfile
-import os
-import pathlib
+from setuptools import setup, Extension
+from setuptools.command.build_ext import build_ext
+from setuptools.command.install_egg_info import install_egg_info
+
+def update_progress_bar(block_num: int, block_size: int, total_size: int):
+	progress = block_num * block_size
+	print(f'Working [{progress}/{total_size}] [{"{:.1f}".format(100 * progress/total_size)}%]', end='\r')
 
 def get_release(release: str, name: str, dir: pathlib.Path):
 	print(f'Downloading {release} {name}.zip to dir : {str(dir)}')
 	zip_file = dir.joinpath(f'{name}.zip')
-	urllib.request.urlretrieve(f'https://github.com/QEDengine/Pragmatic/releases/download/{release}/{name}.zip', str(zip_file))
-
+	urllib.request.urlretrieve(f'https://github.com/QEDengine/Pragmatic/releases/download/{release}/{name}.zip', str(zip_file), update_progress_bar)
+	print('')
 	print(f'Extracting {name}.zip')
 	dir.joinpath('LLVM').mkdir(exist_ok=True)
 	with zipfile.ZipFile(str(zip_file), 'r') as zip_ref:
 		total = len(zip_ref.filelist)
 		for x, file in enumerate(zip_ref.filelist):
-			zip_ref.extract(member=file, path=str(dir.joinpath('LLVM')
+			zip_ref.extract(member=file, path=str(dir.joinpath('LLVM')))
+			update_progress_bar(x, 1, len(zip_ref.filelist))
 
 	os.remove(str(zip_file))
 
@@ -33,9 +35,9 @@ class cmake_build_ext(build_ext):
 		import subprocess
 
 		# temp, ext_build dir
-		build_temp = pathlib.Path(self.build_temp)
-		build_temp.mkdir(parents=True, exist_ok=True)
-		extdir = pathlib.Path(self.get_ext_fullpath(self.extensions[0].name))		# TODO: Better way of obtaining ext
+		if len(self.extensions) == 0:
+			return
+		extdir = pathlib.Path(self.get_ext_fullpath(self.extensions[0].name))
 		extdir.mkdir(parents=True, exist_ok=True)
 
 		pragmatic_build_dir: pathlib.Path = extdir.parent.joinpath('pragmatic')
@@ -56,9 +58,11 @@ class cmake_build_ext(build_ext):
 			print('Building native module : ' + ext.name)
 
 			cwd = pathlib.Path().absolute()
-			# these dirs will be created in build_py, so if you don't have
-			# any python sources to bundle, the dirs will be missing
 
+			build_temp = pathlib.Path(self.build_temp)
+			build_temp.mkdir(parents=True, exist_ok=True)
+			extdir = pathlib.Path(self.get_ext_fullpath(ext.name))
+			extdir.mkdir(parents=True, exist_ok=True)
 
 			# example of cmake args
 			config = 'RelWithDebInfo'
