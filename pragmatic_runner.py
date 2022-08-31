@@ -4,7 +4,7 @@
 """Convenience wrapper for running bootstrap directly from source tree."""
 
 
-from Pragmatic.Pragmatic import main
+from pragmatic.pragmatic import main
 
 
 if __name__ == '__main__':

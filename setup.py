@@ -102,7 +102,7 @@ setup(
 	version='0.0.1',
 	entry_points =
 	{
-		"console_scripts": ['Pragmatic = Pragmatic.Pragmatic:main']
+		"console_scripts": ['Pragmatic = pragmatic.pragmatic:main']
 	},
 	packages = ['pragmatic'],
 	package_dir={'pragmatic': 'pragmatic'},
