@@ -24,7 +24,9 @@ def run_in_venv(path, command):
 
 
 create_virtual_environment(environment_path)
+
 run_in_venv(environment_path, 'test.py')
 run_in_venv(environment_path, 'setup.py install')
 run_in_venv(environment_path, 'test.py')
+
 subprocess.run('test_environment\Scripts\Pragmatic.exe')

@@ -13,7 +13,14 @@
 			"type": "python",
 			"request": "launch",
 			"module": "pragmatic",
-			"args": []
+			"args": ["build"]
+		},
+		{
+			"name": "Pragmatic CLI",
+			"type": "python",
+			"request": "launch",
+			"module": "pragmatic",
+			"args": ["${input:args}"]
 		},
 	],
 	"inputs": [

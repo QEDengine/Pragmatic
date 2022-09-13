@@ -43,7 +43,9 @@ jobs:
         run: 7z a LLVM.zip ./Install/*
       - name: Zip tiny
         shell: cmd
-        run: 7z a tiny_llvm.zip Install/bin/clang.exe Install/include/*
+        run: |
+          cd Install
+          7z a tiny_llvm.zip bin/clang.exe include/*
 
       - name: Publish manual release
         uses: softprops/action-gh-release@v1
