@@ -12,6 +12,7 @@
 #include "DirectoryPragmaHandler.hpp"
 #include "PythonPragmaHandler.hpp"
 #include "PreamblePragmaHandler.hpp"
+#include "TargetPragmaHandler.hpp"
 
 static clang::PragmaHandlerRegistry::Add<QED::Pragmatic::SourcePragmaHandler>	 X1("sourcePragma",      "Pragma used for source file declaration");
 static clang::PragmaHandlerRegistry::Add<QED::Pragmatic::BuildTypePragmaHandler> X2("buildTypePragma",   "Pragma used for configuring build type");
@@ -19,7 +20,7 @@ static clang::PragmaHandlerRegistry::Add<QED::Pragmatic::StandardPragmaHandler> 
 static clang::PragmaHandlerRegistry::Add<QED::Pragmatic::DirectoryPragmaHandler> X4("directoryPragma",   "Pragma used for configuring build directories");
 static clang::PragmaHandlerRegistry::Add<QED::Pragmatic::PythonPragmaHandler>    X5("pythonPragma",   	 "Pragma used for running python macros");
 static clang::PragmaHandlerRegistry::Add<QED::Pragmatic::PreamblePragmaHandler>  X6("preamblePragma",    "Pragma used for running code at the beginning of the file");
-
+static clang::PragmaHandlerRegistry::Add<QED::Pragmatic::TargetPragmaHandler>	 X7("targetPragma",		 "Pragma used for defining build targets");
 
 
 
