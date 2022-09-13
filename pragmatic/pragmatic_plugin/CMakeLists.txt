@@ -3,19 +3,19 @@ cmake_minimum_required(VERSION 3.20)
 project(PragmaticPlugin LANGUAGES CXX)
 
 # Output
-# set(PROJECT "${PROJECT_SOURCE_DIR}/build/")
-# set(LIBRARY_OUTPUT_PATH "${PROJECT_SOURCE_DIR}/build/")
+set(PROJECT "${PROJECT_SOURCE_DIR}/build/")
+set(LIBRARY_OUTPUT_PATH "${PROJECT_SOURCE_DIR}/build/")
 
 # LLVM
-# include_directories("${PROJECT_SOURCE_DIR}/../Pragmatic/data/LLVM/include" "${PROJECT_SOURCE_DIR}/../External/json/single_include")
-# link_directories("${PROJECT_SOURCE_DIR}/../Pragmatic/data/LLVM/lib/")
+include_directories("${PROJECT_SOURCE_DIR}/../LLVM/include" "${PROJECT_SOURCE_DIR}/../External/json/single_include")
+link_directories("${PROJECT_SOURCE_DIR}/../Pragmatic/data/LLVM/lib/")
 
 # Project type
 add_library(PragmaticPlugin SHARED "test.cpp")
 
 # Properties
-# set_property(TARGET PragmaticPlugin PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
-# set_property(TARGET PragmaticPlugin PROPERTY CXX_STANDARD 14)
+set_property(TARGET PragmaticPlugin PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
+set_property(TARGET PragmaticPlugin PROPERTY CXX_STANDARD 14)
 
 # Link
-# target_link_libraries(PragmaticPlugin clang.lib)
+target_link_libraries(PragmaticPlugin clang.lib)
