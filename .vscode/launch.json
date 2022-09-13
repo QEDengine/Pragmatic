@@ -13,7 +13,7 @@
 			"type": "python",
 			"request": "launch",
 			"module": "pragmatic",
-			"args": ["build"]
+			"args": ["build", "tests/basic/basic.cpp"]
 		},
 		{
 			"name": "Pragmatic CLI",
