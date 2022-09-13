@@ -7,11 +7,14 @@ set(PROJECT "${PROJECT_SOURCE_DIR}/build/")
 set(LIBRARY_OUTPUT_PATH "${PROJECT_SOURCE_DIR}/build/")
 
 # LLVM
-include_directories("${PROJECT_SOURCE_DIR}/../LLVM/include" "${PROJECT_SOURCE_DIR}/../External/json/single_include")
-link_directories("${PROJECT_SOURCE_DIR}/../Pragmatic/data/LLVM/lib/")
+include_directories("${PROJECT_SOURCE_DIR}/../LLVM/include" "${PROJECT_SOURCE_DIR}/../../external/json/single_include")
+link_directories("${PROJECT_SOURCE_DIR}/../LLVM/lib/")
+
+# Sources
+file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS *.cpp *.h)
 
 # Project type
-add_library(PragmaticPlugin SHARED "test.cpp")
+add_library(PragmaticPlugin SHARED ${SOURCES})
 
 # Properties
 set_property(TARGET PragmaticPlugin PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
