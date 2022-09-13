@@ -3,10 +3,10 @@
 """Pragmatic.Pragmatic: provides entry point main()."""
 
 from .__init__ import __version__
-from.graph import test
+from.graph import test, scan_directory
 
 import os
-import pathlib
+from pathlib import Path
 import json
 import urllib.request
 import zipfile
@@ -16,7 +16,9 @@ import _thread as thread
 import click
 from flask import Flask, jsonify, render_template
 import pandas as pd
-import numpy as np                                          
+import numpy as np
+
+from . import shared
 
 # Flask server
 
@@ -42,7 +44,7 @@ def get_graph():
 @app.route('/miserables.json', methods=['GET'])
 def get_miserables():
 	data = test()
-	return data
+	return jsonify(data)
 
 # Hash utils
 
@@ -65,7 +67,7 @@ def hash_str(str: str) -> str:
 
 def get_data_dir():
 	dir = os.path.dirname(os.path.realpath(__file__))
-	return pathlib.Path(dir)
+	return Path(dir)
 
 # Init
 
@@ -73,7 +75,7 @@ def update_progress_bar(block_num: int, block_size: int, total_size: int):
 	progress = block_num * block_size
 	print(f'Working [{progress}/{total_size}] [{"{:.1f}".format(100 * progress/total_size)}%]', end='\r')
 
-def get_release(release: str, name: str, dir: pathlib.Path):
+def get_release(release: str, name: str, dir: Path):
 	print(f'Downloading {release} {name}.zip to dir : {str(dir)}')
 	zip_file = dir.joinpath(f'{name}.zip')
 	urllib.request.urlretrieve(f'https://github.com/QEDengine/Pragmatic/releases/download/{release}/{name}.zip', str(zip_file), update_progress_bar)
@@ -102,13 +104,26 @@ def init():
 	get_release('llvm-14-1', 'LLVM', get_data_dir())
 
 @click.command()
-def build():
-	print('Building')
+@click.argument('path', type=click.Path(exists=True))
+def build(path: str):
+	path = Path(path)
+	# if a file was given, change path to it's directory
+	if path.is_file():
+		path = path.parent
+
+	# set initial path given to pragmatic
+	shared.initial_path = path
+	shared.meta_path = path.joinpath(shared.META_FILE)
+
+	# begin build
+	print(f'Building {shared.initial_path}')
+	scan_directory(Path(path))
 
 # Main
 
 def main():
-	print(f"Running pragmatic version {__version__}.")
+	print(f'Running pragmatic version {__version__}.')
+
 	thread.start_new_thread(flaskThread, ())
 
 	cli.add_command(init)
