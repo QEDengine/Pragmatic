@@ -53,19 +53,36 @@ namespace QED { namespace Pragmatic
 			diagnostics.Report(location, ID);
 		}
 
+		auto& sm = diagnostics.getSourceManager();
+		std::string path = TrunkateClangPath(location.printToString(sm));
+
 		// TODO: Validate source string token
 
 		// Get source file
-		std::vector<std::string> sourceFiles;
+		std::string sourceFile;
 		for (auto& token : tokens)
 		{
 			if (token == "source") continue;
 
-			sourceFiles.push_back(token.substr(1, token.size() - 2));
+			sourceFile = token.substr(1, token.size() - 2);
 		}
 
 		auto meta = QED::Pragmatic::GetJSON();
-		meta["Source"] = sourceFiles;
+		bool found = false;
+		for (auto& source : meta["Source"])
+		{
+			if (source.contains("Location") && source["Location"] == path)
+			{
+				source["Path"].push_back(sourceFile);
+				found = true;
+			}
+		}
+		if (!found)
+		{
+			meta["Source"].push_back({ { "Path", {} }, {"Location", path } });
+			meta["Source"].at(meta["Source"].size() - 1)["Path"].push_back(sourceFile);
+		}
+		
 		std::ofstream sourceJson(QED::Pragmatic::metaFilePath);
 		sourceJson << std::setw(4) << meta;
 	}

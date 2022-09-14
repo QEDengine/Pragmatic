@@ -55,20 +55,20 @@ namespace QED { namespace Pragmatic
 		// TODO: Validate build type tokens
 
 		// Get build type
-		std::string buildType = "";
+		std::string targetName = "";
 		for (auto& token : tokens)
 		{
 			if (token == "target") continue;
 
-			buildType += token + ' ';
+			targetName += token + ' ';
 		}
 
-		buildType = buildType.substr(1, buildType.size() - 3);
+		targetName = targetName.substr(1, targetName.size() - 3);
 
 		auto& sm = diagnostics.getSourceManager();
 
 		auto meta = QED::Pragmatic::GetJSON();
-		meta["Targets"].push_back({ { "Name", buildType }, {"Location", TrunkateClangPath(location.printToString(sm)) } });
+		meta["Targets"].push_back({ { "Name", targetName }, {"Location", TrunkateClangPath(location.printToString(sm)) } });
 		std::ofstream sourceJson(QED::Pragmatic::metaFilePath);
 		sourceJson << std::setw(4) << meta;
 	}

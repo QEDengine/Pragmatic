@@ -4,6 +4,7 @@
 // Clang
 #include <clang/Lex/Preprocessor.h>
 #include <llvm/Support/Registry.h>
+#include <clang/Frontend/FrontendPluginRegistry.h>
 
 // Pragmatic
 #include "SourcePragmaHandler.hpp"
@@ -13,14 +14,16 @@
 #include "PythonPragmaHandler.hpp"
 #include "PreamblePragmaHandler.hpp"
 #include "TargetPragmaHandler.hpp"
+#include "IncludeHandler.hpp"
 
-static clang::PragmaHandlerRegistry::Add<QED::Pragmatic::SourcePragmaHandler>	 X1("sourcePragma",      "Pragma used for source file declaration");
-static clang::PragmaHandlerRegistry::Add<QED::Pragmatic::BuildTypePragmaHandler> X2("buildTypePragma",   "Pragma used for configuring build type");
-static clang::PragmaHandlerRegistry::Add<QED::Pragmatic::StandardPragmaHandler>  X3("standardPragma",    "Pragma used for configuring C++ standard");
-static clang::PragmaHandlerRegistry::Add<QED::Pragmatic::DirectoryPragmaHandler> X4("directoryPragma",   "Pragma used for configuring build directories");
-static clang::PragmaHandlerRegistry::Add<QED::Pragmatic::PythonPragmaHandler>    X5("pythonPragma",   	 "Pragma used for running python macros");
-static clang::PragmaHandlerRegistry::Add<QED::Pragmatic::PreamblePragmaHandler>  X6("preamblePragma",    "Pragma used for running code at the beginning of the file");
-static clang::PragmaHandlerRegistry::Add<QED::Pragmatic::TargetPragmaHandler>	 X7("targetPragma",		 "Pragma used for defining build targets");
+static clang::PragmaHandlerRegistry::Add<QED::Pragmatic::SourcePragmaHandler>	 X0("sourcePragma",      "Pragma used for source file declaration");
+static clang::PragmaHandlerRegistry::Add<QED::Pragmatic::BuildTypePragmaHandler> X1("buildTypePragma",   "Pragma used for configuring build type");
+static clang::PragmaHandlerRegistry::Add<QED::Pragmatic::StandardPragmaHandler>  X2("standardPragma",    "Pragma used for configuring C++ standard");
+static clang::PragmaHandlerRegistry::Add<QED::Pragmatic::DirectoryPragmaHandler> X3("directoryPragma",   "Pragma used for configuring build directories");
+static clang::PragmaHandlerRegistry::Add<QED::Pragmatic::PythonPragmaHandler>    X4("pythonPragma",   	 "Pragma used for running python macros");
+static clang::PragmaHandlerRegistry::Add<QED::Pragmatic::PreamblePragmaHandler>  X5("preamblePragma",    "Pragma used for running code at the beginning of the file");
+static clang::PragmaHandlerRegistry::Add<QED::Pragmatic::TargetPragmaHandler>	 X6("targetPragma",		 "Pragma used for defining build targets");
+static FrontendPluginRegistry::Add<QED::Pragmatic::PragmaticASTAction>			 Y0("includeHandler",	 "Writes #include directives to meta file");
 
 
 

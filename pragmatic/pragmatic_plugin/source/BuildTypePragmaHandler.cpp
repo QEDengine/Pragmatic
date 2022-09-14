@@ -71,6 +71,9 @@ namespace QED { namespace Pragmatic
 			diagnostics.Report(location, ID);
 		}
 
+		auto& sm = diagnostics.getSourceManager();
+		std::string path = TrunkateClangPath(location.printToString(sm));
+
 		// TODO: Validate build type tokens
 
 		// Get build type
@@ -85,7 +88,19 @@ namespace QED { namespace Pragmatic
 		buildType = buildType.substr(0, buildType.size() - 1);
 
 		auto meta = QED::Pragmatic::GetJSON();
-		meta["BuildOptions"]["BuildType"] = buildType;
+
+		bool found = false;
+		for (auto& buildOption : meta["BuildOptions"])
+		{
+			if (buildOption.contains("Location") && buildOption["Location"] == path)
+			{
+				buildOption["BuildType"] = buildType;
+				found = true;
+			}
+		}
+		if (!found)
+			meta["BuildOptions"].push_back({ { "BuildType", buildType }, {"Location", path } });
+
 		std::ofstream sourceJson(QED::Pragmatic::metaFilePath);
 		sourceJson << std::setw(4) << meta;
 	}

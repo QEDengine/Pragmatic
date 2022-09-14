@@ -21,7 +21,6 @@ namespace QED { namespace Pragmatic
 {
 		inline std::string TrunkateClangPath(std::string path)
 		{
-			llvm::outs() << "[Pragmatic] Source file path to trunkate : " << path << "\n";
 			// Remove "Source"
 			if (path.find("Source") != std::string::npos) path = path.erase(0, path.find("Source") + sizeof("Source") - 1);
 			// Remove first two characters : "some/dir/header.hpp:x:y"
@@ -34,7 +33,6 @@ namespace QED { namespace Pragmatic
 
 			// Remove character position from the end : "some/dir/header.hpp"
 			path = path.substr(0, path.find(':'));
-			llvm::outs() << "[Pragmatic] Trunkated source file path : " << path << "\n";
 			return path;
 		}
 
