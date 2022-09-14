@@ -69,18 +69,19 @@ namespace QED { namespace Pragmatic
 
 		auto meta = QED::Pragmatic::GetJSON();
 		bool found = false;
-		for (auto& source : meta["Source"])
+		for (auto& source : meta["Sources"])
 		{
 			if (source.contains("Location") && source["Location"] == path)
 			{
-				source["Path"].push_back(sourceFile);
+				if (source.contains("Path") && std::find(source["Path"].begin(), source["Path"].end(), sourceFile) == source["Path"].end())
+					source["Path"].push_back(sourceFile);
 				found = true;
 			}
 		}
 		if (!found)
 		{
-			meta["Source"].push_back({ { "Path", {} }, {"Location", path } });
-			meta["Source"].at(meta["Source"].size() - 1)["Path"].push_back(sourceFile);
+			meta["Sources"].push_back({ { "Path", {} }, {"Location", path } });
+			meta["Sources"].at(meta["Sources"].size() - 1)["Path"].push_back(sourceFile);
 		}
 		
 		std::ofstream sourceJson(QED::Pragmatic::metaFilePath);

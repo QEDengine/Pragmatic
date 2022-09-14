@@ -94,6 +94,14 @@ namespace QED { namespace Pragmatic
 		{
 			if (buildOption.contains("Location") && buildOption["Location"] == path)
 			{
+				// Error handling : In a given file, only one build type is allowed.
+				// Due to includes, redefinitions of the same build type are allowed.
+				if (buildOption.contains("BuildType") && buildOption["BuildType"] != buildType)
+				{
+					unsigned ID = diagnostics.getCustomDiagID(clang::DiagnosticsEngine::Error, "#pragma type can only be defined once per target. It is redifined in the same file.");
+					diagnostics.Report(location, ID);
+				}
+
 				buildOption["BuildType"] = buildType;
 				found = true;
 			}

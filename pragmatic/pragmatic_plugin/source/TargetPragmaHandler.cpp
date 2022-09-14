@@ -66,9 +66,34 @@ namespace QED { namespace Pragmatic
 		targetName = targetName.substr(1, targetName.size() - 3);
 
 		auto& sm = diagnostics.getSourceManager();
+		auto path = TrunkateClangPath(location.printToString(sm));
 
 		auto meta = QED::Pragmatic::GetJSON();
-		meta["Targets"].push_back({ { "Name", targetName }, {"Location", TrunkateClangPath(location.printToString(sm)) } });
+
+		if (!meta.contains("Targets"))
+			meta["Targets"].push_back({ { "Name", targetName }, {"Location", path } });
+		else
+		{
+			bool found = false;
+			for (auto& target : meta["Targets"])
+			{
+				if (target["Name"] == targetName)
+				{
+					found = true;
+					if (target["Location"] != path)
+					{
+						auto errorMsg = "Target with name " + targetName + " is redefined, only target names defined with #pragma target must be unique.";
+						unsigned ID = diagnostics.getCustomDiagID(clang::DiagnosticsEngine::Error, "Target redefined, only target names defined with #pragma target must be unique.");
+						diagnostics.Report(location, ID);
+					}
+				}
+			}
+			if (!found)
+			{
+				meta["Targets"].push_back({ { "Name", targetName }, {"Location", path } });
+			}
+		}
+		
 		std::ofstream sourceJson(QED::Pragmatic::metaFilePath);
 		sourceJson << std::setw(4) << meta;
 	}
