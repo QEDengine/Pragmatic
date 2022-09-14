@@ -36,7 +36,7 @@
 				"-o", "tests/basic/basic.ii",
 				"-fplugin=${workspaceFolder}/pragmatic/pragmatic_plugin/build/PragmaticPlugin.dll",
 				"-DPRAGMATIC_FILE_PATH=\"${workspaceFolder}/tests/basic/meta.json\"",
-				"--include=${workspaceFolder}/pragmatic/include/preamble.h"
+				"--include=${workspaceFolder}/pragmatic/include/preamble.hpp"
 			]
 		}
 	],
