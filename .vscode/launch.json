@@ -22,6 +22,22 @@
 			"module": "pragmatic",
 			"args": ["${input:args}"]
 		},
+		{
+			"name": "Pragmatic Plugin",
+			"type": "cppvsdbg",
+			"request": "launch",
+			"console": "integratedTerminal",
+			"symbolSearchPath": "${workspaceFolder}/pragmatic/pragmatic_plugin/build",
+			"cwd": "${workspaceFolder}",
+			"program": "${workspaceFolder}/pragmatic/LLVM/bin/clang.exe",
+			"args": [
+				"-c",
+				"tests/basic/basic.cpp",
+				"-o", "tests/basic/basic.obj",
+				"-fplugin=${workspaceFolder}/pragmatic/pragmatic_plugin/build/PragmaticPlugin.dll",
+				"-DPRAGMATIC_FILE_PATH=\"${workspaceFolder}/tests/basic/meta.json\"",
+			]
+		}
 	],
 	"inputs": [
 		{
