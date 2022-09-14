@@ -23,10 +23,6 @@ static clang::PragmaHandlerRegistry::Add<QED::Pragmatic::DirectoryPragmaHandler>
 static clang::PragmaHandlerRegistry::Add<QED::Pragmatic::PythonPragmaHandler>    X4("pythonPragma",   	 "Pragma used for running python macros");
 static clang::PragmaHandlerRegistry::Add<QED::Pragmatic::PreamblePragmaHandler>  X5("preamblePragma",    "Pragma used for running code at the beginning of the file");
 static clang::PragmaHandlerRegistry::Add<QED::Pragmatic::TargetPragmaHandler>	 X6("targetPragma",		 "Pragma used for defining build targets");
-static FrontendPluginRegistry::Add<QED::Pragmatic::PragmaticASTAction>			 Y0("includeHandler",	 "Writes #include directives to meta file");
-
-
-
 
 
 

@@ -10,6 +10,16 @@
 
 namespace QED { namespace Pragmatic
 {
+	class Callbacks : public clang::PPCallbacks
+	{
+		protected:
+		clang::Preprocessor& preProcessor;
+		clang::SourceManager& sourceManager;
+
+		public:
+		Callbacks(clang::Preprocessor& preProcessor) : preProcessor(preProcessor), sourceManager(preProcessor.getSourceManager()) { }
+	};
+
 	class PreamblePragmaHandler : public clang::PragmaHandler
 	{
 		public: // Constructor

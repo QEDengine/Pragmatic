@@ -31,11 +31,12 @@
 			"cwd": "${workspaceFolder}",
 			"program": "${workspaceFolder}/pragmatic/LLVM/bin/clang.exe",
 			"args": [
-				"-c",
+				"-E",
 				"tests/basic/basic.cpp",
-				"-o", "tests/basic/basic.obj",
+				"-o", "tests/basic/basic.ii",
 				"-fplugin=${workspaceFolder}/pragmatic/pragmatic_plugin/build/PragmaticPlugin.dll",
 				"-DPRAGMATIC_FILE_PATH=\"${workspaceFolder}/tests/basic/meta.json\"",
+				"--include=${workspaceFolder}/pragmatic/include/preamble.h"
 			]
 		}
 	],
