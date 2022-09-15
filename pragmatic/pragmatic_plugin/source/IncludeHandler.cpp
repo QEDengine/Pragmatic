@@ -31,7 +31,7 @@ namespace QED { namespace Pragmatic
 				QED::Pragmatic::metaFilePath = QED::Pragmatic::GetMacroValue(preProcessor, "PRAGMATIC_FILE_PATH");
 				auto meta = QED::Pragmatic::GetJSON();
 				bool found = false;
-				for (auto& include : meta["Include"])
+				for (auto& include : meta["Includes"])
 				{
 					if (include.contains("Location") && include["Location"] == path)
 					{
@@ -42,8 +42,8 @@ namespace QED { namespace Pragmatic
 				}
 				if (!found)
 				{
-					meta["Include"].push_back({ { "Path", {} }, {"Location", path } });
-					meta["Include"].at(meta["Include"].size() - 1)["Path"].push_back(RelativePath);
+					meta["Includes"].push_back({ { "Path", {} }, {"Location", path } });
+					meta["Includes"].at(meta["Includes"].size() - 1)["Path"].push_back(RelativePath);
 				}
 				std::ofstream sourceJson(QED::Pragmatic::metaFilePath);
 				sourceJson << std::setw(4) << meta;
