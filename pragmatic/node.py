@@ -25,6 +25,7 @@ class Node(Slots):
 		self.path: Path = path
 		self.parents: list[Node] = []
 		self.children: list[Node] = []
+		self.associated: list[Node] = []
 
 		self.filename: str = path.stem
 		self.extension: str = path.suffix
@@ -57,16 +58,22 @@ class Node(Slots):
 	# Node edges
 
 	def add_parents(self, parents: list[Node]):
+		# If passed parents isn't a list, just one parent, convert to list
 		if type(parents) is not list: parents = [ parents ]
-		self.parents.extend(parents)
+		# If parent is already in list, do nothing
 		for parent in parents:
-			parent.children.append(self)
+			if parent not in self.parents:
+				self.parents.append(parent)
+				parent.children.append(self)
 
 	def add_children(self, children: list[Node]):
+		# If passed parents isn't a list, just one parent, convert to list
 		if type(children) is not list: children = [ children ]
-		self.children.extend(children)
+		# If parent is already in list, do nothing
 		for child in children:
-			child.parents.append(self)
+			if child not in self.children:
+				self.children.append(child)
+				child.parents.append(self)
 
 	# Visual serialization
 

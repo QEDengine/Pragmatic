@@ -61,34 +61,17 @@ def object_node_generator(node: Node):
 		o_node.command = f'{shared.clang_path} {" ".join(flags)} {" ".join(inputs)} -o {output_path}'
 	return len(obj_nodes) > 0
 
-def target_node_generator(node: Node):
-	target_nodes = generate_children(node)
-	for t_node in target_nodes:
-		flags = ['-fuse-ld=lld']
-		output_path = f'{shared.initial_path}/{"basic"}.exe'
-		paths: list[str] = []
-		for node in nodes:
-			if node.extension == '.obj':
-				paths.append(str(node.path))
-				t_node.add_parents(node)
-		t_node.command = f'{shared.clang_path} {" ".join(flags)} {" ".join(paths)} -o {output_path}'
-	return len(target_nodes) > 0
-
 file_handlers = {
 	'.cpp': parsed_node_generator,
-	'.ii': object_node_generator,
-	'.obj': target_node_generator
+	'.ii': object_node_generator
 }
 
-def iterate_graph():
-	reiterate = False
-
-	# Load meta
+def load_meta():
 	if shared.meta_path.exists():
 		with open(shared.meta_path) as meta_file:
 			shared.meta = json.load(meta_file)
-	
-	# Handle includes
+
+def handle_meta_includes():
 	for includes_in_file in shared.meta['Includes']:
 		source_node = [s_node for s_node in nodes if s_node.path == Path(includes_in_file["Location"])]
 		if len(source_node) == 1: source_node = source_node[0]
@@ -99,17 +82,142 @@ def iterate_graph():
 			# TODO: update this for include diretories
 			relative_path = source_node.dir.joinpath(Path(include))
 			include_path = relative_path if relative_path.exists() else Path(include)
-			if not any(node for node in nodes if node.path == include_path):
+			# Find header node and add source node as child
+			found = False
+			for node in nodes:
+				if node.path == include_path:
+					node.add_children(source_node)
+					found = True
+			if not found:
 				header_node = Node(include_path)
 				header_node.add_children(source_node)
 
-	# Generate nodes
+def handle_meta_sources():
+	for source in shared.meta['Sources']:
+		# Find node with the same path as the source directive's location
+		associating_node: Node = None
+		for node in nodes:
+			if node.path == Path(source['Location']):
+				associating_node = node
+				break
+		if associating_node == None:
+			break
+		# Add associations for the node
+		for path in source['Path']:
+			# Find node to associate
+			for node in nodes:
+				include_path_relative_to_file: Path = associating_node.dir.joinpath(path)
+				if node.path == include_path_relative_to_file:
+					if node not in associating_node.associated:
+						associating_node.associated.append(node)
+
+
+def get_leaf_nodes(node: Node) -> list[Node]:
+	leaf_nodes: list[Node] = []
+	
+	if len(node.children) == 0: return [node]
+	else:
+		for child in node.children:
+			leaf_nodes.extend(get_leaf_nodes(child))
+	return leaf_nodes
+
+def get_all_children(node: Node, initial:bool=True) -> list[Node]:
+	children: list[Node] = []
+
+	if not initial: children.append(node)
+
+	for child in node.children:
+		children.extend(get_all_children(child, False))
+	return children
+
+def get_all_parents(node: Node, initial:bool=True):
+	parents: list[Node] = []
+
+	if not initial: parents.append(node)
+
+	for parent in node.parents:
+		parents.extend(get_all_parents(parent, False))
+	return parents
+
+def get_node_group(path: Path) -> list[Node]:
+	node_group: list[Node] = []
+	
+	# Get initial node
+	initial_node: Node = None
+	for node in nodes:
+		if node.path == path:
+			initial_node = node
+			break
+	if initial_node == None: return node_group
+
+	# Each iteration is a translation unit
+	starter_nodes: list[Node] = [initial_node]
+	for starter_node in starter_nodes:
+		# Find leaves from initial node
+		leaves = get_leaf_nodes(starter_node)
+
+		# Get all parents (collect all files needed for translation unit)
+		translation_unit_files: list[Node] = []
+		for leaf in leaves:
+			translation_unit_files.extend(get_all_parents(leaf, False))
+
+		# Add nodes from current translation unit files
+		for node in translation_unit_files:
+			if node not in node_group: node_group.append(node)
+
+		# Get all header & source files from current group and find associated files
+		hpp_cpp_nodes = [hpp_cpp_nodes for hpp_cpp_nodes in translation_unit_files if hpp_cpp_nodes.extension == '.hpp' or hpp_cpp_nodes.extension == '.cpp']
+		for node in hpp_cpp_nodes:
+			for associated_node in node.associated:
+				if associated_node not in starter_nodes:
+					starter_nodes.append(associated_node)
+
+	return node_group
+
+
+
+def handle_meta_targets():
+	for target in shared.meta['Targets']:
+		# If no node exists for target, create one
+		target_node: Node = None
+		for node in nodes:
+			if node.filename == target['Name'] and node.extension == '.exe':
+				target_node = node
+				break
+		if target_node is None: target_node = Node(shared.initial_path.joinpath(f'{target["Name"]}.exe'))
+
+		# Get nodes that belong to target
+		node_group = get_node_group(Path(target['Location']))
+		# Add object nodes from group to target
+		obj_nodes = [node for node in node_group if node.extension == '.obj']
+		for obj_node in obj_nodes:
+			target_node.add_parents(obj_node)
+
+		# Generate command
+		flags = ['-fuse-ld=lld']
+		inputs: list[str] = []
+		for node in target_node.parents:
+			inputs.append(str(node.path))
+		target_node.command = f'{shared.clang_path} {" ".join(flags)} {" ".join(inputs)} -o {target_node.path}'
+
+	return
+
+def iterate_graph():
+	reiterate = False
+
+	load_meta()
+	if shared.meta is not None:
+		handle_meta_includes()
+		handle_meta_sources()
+		handle_meta_targets()
+
+	# Generate nodes with file handlers
 	for node in nodes:
 		reiterate = reiterate or file_handlers.get(node.extension, lambda n: None)(node)
 
 	# Run commands
 	for node in nodes:
-		if node.command != '' and not node.is_valid and node.is_parents_valid:
+		if node.command != '' and not node.is_valid and node.is_parents_valid and node.extension != '.exe':
 			subprocess.run(node.command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 			node.CalculateHash()
 			reiterate = True
@@ -134,6 +242,13 @@ def scan_directory(path: Path):
 
 	while iterate_graph():
 		pass
+
+	# Run link commands
+	for node in nodes:
+		if node.command != '' and not node.is_valid and node.is_parents_valid and node.extension == '.exe':
+			subprocess.run(node.command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+			node.CalculateHash()
+
 	return
 
 def test(index: int = 0):
