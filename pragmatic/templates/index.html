@@ -27,8 +27,17 @@
 
 	var simulation = d3.forceSimulation()
 		.force("link", d3.forceLink().id(function(d) { return d.id; }))
-		.force("charge", d3.forceManyBody())
-		.force("center", d3.forceCenter(width / 2, height / 2));
+		.force("charge", d3.forceManyBody().strength(-400))
+		.force("x", d3.forceX(width / 2))
+		.force("y", d3.forceY(function(d)
+		{
+			if (d.group == 4)
+				return height
+			else if (d.group == 0)
+				return 0
+			else
+				return height / 2
+		}));
 
 	d3.json("miserables.json", function(error, graph) {
 		if (error) throw error;
