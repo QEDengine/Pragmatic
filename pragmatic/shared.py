@@ -1,5 +1,6 @@
 from pathlib import Path
 from typing import Final
+import json
 
 # Constants
 PRAGMATIC_MACRO: Final[str] = 'PRAGMATIC_FILE_PATH'
@@ -11,3 +12,6 @@ clang_path = f'{pragmatic_path}/LLVM/bin/clang.exe'
 pragmatic_plugin_path = f'{pragmatic_path}/pragmatic_plugin/build/PragmaticPlugin.dll'
 initial_path: Path = None
 meta_path: Path = None
+
+# Variables
+meta: json = None

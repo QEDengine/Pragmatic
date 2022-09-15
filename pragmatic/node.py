@@ -9,10 +9,11 @@ from . import graph
 from . import utility
 
 extenion_colors = {
-	'.cpp': 0,
-	'.ii': 1,
-	'.obj': 2,
-	'.exe': 3
+	'.hpp': 0,
+	'.cpp': 1,
+	'.ii': 2,
+	'.obj': 3,
+	'.exe': 4
 }
 
 class Node(Slots):
@@ -28,7 +29,6 @@ class Node(Slots):
 		self.filename: str = path.stem
 		self.extension: str = path.suffix
 		self.dir: Path = path.parent
-		self.relative_path: Path = self.path.relative_to(shared.initial_path)
 
 		self.command: str = ''
 		self.hash: str = ''
@@ -42,8 +42,12 @@ class Node(Slots):
 		return self.path.exists() and utility.hash_file(self.path.resolve()) == self.hash
 
 	@property
+	def is_parents_valid(self):
+		return all(parent.is_valid for parent in self.parents)
+
+	@property
 	def is_valid(self) -> bool:
-		return self.is_hash_valid and all(parent.is_valid for parent in self.parents)
+		return self.is_hash_valid and self.is_parents_valid
 
 	# Methods
 
@@ -67,10 +71,10 @@ class Node(Slots):
 	# Visual serialization
 
 	def serialize_node(self):
-		return { 'id': str(self.relative_path), 'group': extenion_colors[self.extension] }
+		return { 'id': str(self.path), 'group': extenion_colors[self.extension] }
 	
 	def serialize_links(self):
 		links = []
 		for child in self.children:
-			links.append({ 'source': str(self.relative_path), 'target': str(child.relative_path), 'value': 1 })
+			links.append({ 'source': str(self.path), 'target': str(child.path), 'value': 1 })
 		return links

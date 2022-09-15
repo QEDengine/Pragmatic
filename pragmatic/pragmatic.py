@@ -3,7 +3,7 @@
 """Pragmatic.Pragmatic: provides entry point main()."""
 
 from .__init__ import __version__
-from.graph import test, scan_directory
+from .graph import test, scan_directory
 
 import os
 from pathlib import Path

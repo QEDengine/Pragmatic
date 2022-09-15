@@ -1,4 +1,4 @@
 
 
-#pragma target "basic"
 #pragma type executable
+#pragma target "basic"
