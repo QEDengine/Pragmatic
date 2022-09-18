@@ -251,5 +251,21 @@ def scan_directory(path: Path):
 
 	return
 
-def test(index: int = 0):
-	return visual_graph_history[-1]
+visual_graph_index = 0
+def get_next_visual_graph():
+	global visual_graph_index
+
+	re_val = visual_graph_history[visual_graph_index]
+	visual_graph_index = (visual_graph_index + 1) % len(visual_graph_history)
+	return re_val
+
+visual_graph_size = 0
+def get_latest_visual_graph():
+	global visual_graph_size
+
+	if len(visual_graph_history) > visual_graph_size:
+		visual_graph_size = len(visual_graph_history)
+		return visual_graph_history[-1]
+	else:
+		return None
+

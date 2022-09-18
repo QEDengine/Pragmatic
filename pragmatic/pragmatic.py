@@ -3,7 +3,7 @@
 """Pragmatic.Pragmatic: provides entry point main()."""
 
 from .__init__ import __version__
-from .graph import test, scan_directory
+from .graph import get_latest_visual_graph, get_next_visual_graph, scan_directory
 
 import os
 from pathlib import Path
@@ -11,10 +11,11 @@ import json
 import urllib.request
 import zipfile
 import hashlib
+import time
 import _thread as thread
 
 import click
-from flask import Flask, jsonify, render_template
+from flask import Flask, jsonify, render_template, Response
 import pandas as pd
 import numpy as np
 
@@ -22,29 +23,39 @@ from . import shared
 
 # Flask server
 
-incomes = [
-	{
-		'description': 'salary',
-		'amount': 5000
-	}
-]
 app = Flask(__name__)
 
 def flaskThread():
-    app.run()
+	app.run()
 
 @app.route("/")
 def index():
     return render_template('index.html')
 
-@app.route('/graph', methods=['GET'])
-def get_graph():
-	return jsonify(incomes)
-
 @app.route('/miserables.json', methods=['GET'])
 def get_miserables():
-	data = test()
+	data = get_latest_visual_graph()
 	return jsonify(data)
+
+def loop_visual_graphs():
+	'''this could be any function that blocks until data is ready'''
+	time.sleep(3.0)
+	data = json.dumps(get_next_visual_graph())
+	return data
+
+def latest_visual_graph():
+	while True:
+		visual_graph = get_latest_visual_graph()
+		if visual_graph is not None:
+			return visual_graph
+
+@app.route('/stream')
+def stream():
+	def eventStream():
+		while True:
+			# wait for source data to be available, then push it
+			yield 'data: {}\n\n'.format(loop_visual_graphs())
+	return Response(eventStream(), mimetype="text/event-stream")
 
 # Hash utils
 

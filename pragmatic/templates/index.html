@@ -19,100 +19,177 @@
 <svg width="960" height="600"></svg>
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script>
-	var svg = d3.select("svg"),
-		width = +svg.attr("width"),
-		height = +svg.attr("height");
+const svg = d3.select("svg"),
+width = +svg.attr("width"),
+height = +svg.attr("height");
 
-	var color = d3.scaleOrdinal(d3.schemeCategory10);
+const nodeG = svg.append("g").attr("class","nodes")
+const linkG = svg.append("g").attr("class", "links")
+	
+let graph = { nodes: [], links : [] }
+var link; 
+var node;
 
-	var simulation = d3.forceSimulation()
-		.force("link", d3.forceLink().id(function(d) { return d.id; }))
-		.force("charge", d3.forceManyBody().strength(-400))
-		.force("x", d3.forceX(width / 2))
-		.force("y", d3.forceY(function(d)
+const color = d3.scaleOrdinal(d3.schemeCategory10);
+
+var eventSource = new EventSource("/stream")
+eventSource.onmessage = function(e) {
+		var data = JSON.parse(e.data)
+
+		// Add new nodes
+		for (const data_node of data.nodes)
 		{
-			if (d.group == 4)
-				return height
-			else if (d.group == 0)
-				return 0
-			else
-				return height / 2
-		}));
-
-	d3.json("miserables.json", function(error, graph) {
-		if (error) throw error;
-
-		var link = svg.append("g")
-			.attr("class", "links")
-			.selectAll("line")
-			.data(graph.links)
-			.enter().append("line")
-			.attr("stroke-width", function(d) { return Math.sqrt(d.value); });
-
-		var node = svg.append("g")
-			.attr("class", "nodes")
-			.selectAll("g")
-			.data(graph.nodes)
-			.enter().append("g")
-
-		var circles = node.append("circle")
-			.attr("r", 5)
-			.attr("fill", function(d) { return color(d.group); })
-			.style("stroke", d => d.group == 1 ? "grey" : "transparent");
-
-		// Create a drag handler and append it to the node object instead
-		var drag_handler = d3.drag()
-			.on("start", dragstarted)
-			.on("drag", dragged)
-			.on("end", dragended);
-
-		drag_handler(node);
-		
-		var lables = node.append("text")
-			.text(function(d) {
-				return d.id;
-			})
-			.attr('x', 6)
-			.attr('y', 3);
-
-		node.append("title")
-			.text(function(d) { return d.id; });
-
-		simulation
-			.nodes(graph.nodes)
-			.on("tick", ticked);
-
-		simulation.force("link")
-			.links(graph.links);
-
-		function ticked() {
-			link
-				.attr("x1", function(d) { return d.source.x; })
-				.attr("y1", function(d) { return d.source.y; })
-				.attr("x2", function(d) { return d.target.x; })
-				.attr("y2", function(d) { return d.target.y; });
-
-			node
-				.attr("transform", function(d) {
-				return "translate(" + d.x + "," + d.y + ")";
-				})
+			if (graph.nodes.filter(graph_node => graph_node.id === data_node.id).length == 0) {
+				graph.nodes.push(data_node)
+			}
 		}
-	});
 
-	function dragstarted(d) {
-		if (!d3.event.active) simulation.alphaTarget(0.3).restart();
-		d.fx = d.x;
-		d.fy = d.y;
-	}
+		// Remove nodes that no longer exist
+		graph.nodes = graph.nodes.filter(function(graph_node, index, arr) { 
+			return data.nodes.some(data_node => data_node.id === graph_node.id)
+		});
 
-	function dragged(d) {
-		d.fx = d3.event.x;
-		d.fy = d3.event.y;
-	}
+		// Add new links
+		for (const data_link of data.links)
+		{
+			if (graph.links.filter(graph_link => graph_link.source === data_link.source && graph_link.target === data_link.target).length == 0) {
+				graph.links.push(data_link)
+			}
+		}
 
-	function dragended(d) {
-		if (!d3.event.active) simulation.alphaTarget(0);
-		d.fx = null;
-		d.fy = null;
-	}
+		// Remove links that no longer exist
+		graph.links = graph.links.filter(function(graph_link, index, arr) { 
+			return data.links.some(data_link => graph_link.source === data_link.source && graph_link.target === data_link.target)
+		});
+
+		update();
+};
+
+		
+var simulation = d3.forceSimulation()
+	.force("link", d3.forceLink().id(function(d) { return d.id; }))
+	.force("charge", d3.forceManyBody().strength(-400))
+	.force("x", d3.forceX(width / 2))
+	.force("y", d3.forceY(function(d)
+	{
+		if (d.group == 4)
+			return height
+		else if (d.group == 0)
+			return 0
+		else
+			return height / 2
+	}));
+
+update();
+function update() {
+	// Nodes
+
+	node = nodeG
+		.selectAll("g")
+		.data(graph.nodes);
+
+	node.exit()
+		.transition()
+		.attr("opacity",0)
+		.remove();
+	
+	var newnodes = node.enter().append("g")
+		.attr("opacity", 0)
+		.call(d3.drag()
+		.on("start", dragstarted)
+		.on("drag", dragged)
+		.on("end", dragended))
+      
+	newnodes.transition()
+		.attr("opacity",1)
+		.attr("class", "nodes")
+
+	var circles = newnodes.append("circle")
+		.attr("r", 5)
+		.attr("fill", function(d) { return color(d.group); })
+		.style("stroke", d => d.group == 1 ? "grey" : "transparent");
+
+	var lables = newnodes.append("text")
+		.text(function(d) {  return d.id; })
+		.attr('x', 6)
+		.attr('y', 3)
+		.style("font-size", "20px");
+		
+	newnodes.append("title")
+		.text(function(d) { return d.id; });
+	
+	node = newnodes.merge(node);
+
+	var drag_handler = d3.drag()
+		.on("start", dragstarted)
+		.on("drag", dragged)
+		.on("end", dragended);
+
+	drag_handler(node);
+
+	// Links
+	
+	// Repeat but with links:
+	link = linkG.selectAll("line")
+	.data(graph.links)
+       
+	// Remove excess links:
+	link.exit()
+		.transition()
+		.attr("opacity",0)
+		.remove();
+	
+	// Add new links:
+	var newlinks = link.enter()
+		.append("line")
+		.attr("stroke-width", function(d) { return Math.sqrt(d.value); });
+		
+	// for effect:
+	newlinks 
+		.attr("opacity", 0)
+		.transition()
+		.attr("opacity",1)      
+
+	// Combine new links with old:
+	link = newlinks.merge(link);
+
+	// Simulation
+
+	simulation
+      .nodes(graph.nodes) // the data array, not the selection of nodes.
+      .on("tick", ticked)
+      .force("link").links(graph.links)
+      
+   simulation.alpha(1).restart();
+};
+
+function ticked() {
+	link
+		.attr("x1", function(d) { return d.source.x; })
+		.attr("y1", function(d) { return d.source.y; })
+		.attr("x2", function(d) { return d.target.x; })
+		.attr("y2", function(d) { return d.target.y; });
+
+	node
+		.attr("transform", function(d) {
+		return "translate(" + d.x + "," + d.y + ")";
+		})
+}
+
+function dragstarted(d) {
+	if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+	d.fx = d.x;
+	d.fy = d.y;
+}
+
+function dragged(d) {
+	d.fx = d3.event.x;
+	d.fy = d3.event.y;
+}
+
+function dragended(d) {
+	if (!d3.event.active) simulation.alphaTarget(0);
+	d.fx = null;
+	d.fy = null;
+}
 </script>
