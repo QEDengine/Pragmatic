@@ -1,3 +1,5 @@
+from ctypes import util
+from logging import exception
 from pathlib import Path
 import subprocess
 import json
@@ -41,24 +43,20 @@ def generate_children(node: Node) -> list[Node]:
 def parsed_node_generator(node: Node):
 	parsed_nodes = generate_children(node)
 	for p_node in parsed_nodes:
-		flags = [
+		p_node.flags = [
 			'-E',
 			f'-fplugin={shared.pragmatic_plugin_path}',
 			f'-D{shared.PRAGMATIC_MACRO}={shared.meta_path}',
 			f'--include={shared.pragmatic_path}/include/preamble.hpp'
 			]
-		inputs = [str(parent.path) for parent in p_node.parents]
-		output_path = f'{p_node.dir}/{p_node.filename}.ii'
-		p_node.command = f'{shared.clang_path} {" ".join(flags)} {" ".join(inputs)} -o {output_path}'
+		p_node.resolve_command()
 	return len(parsed_nodes) > 0
 
 def object_node_generator(node: Node):
 	obj_nodes = generate_children(node)
 	for o_node in obj_nodes:
-		flags = ['-c']
-		inputs = [str(parent.path) for parent in o_node.parents]
-		output_path = f'{o_node.dir}/{o_node.filename}.obj'
-		o_node.command = f'{shared.clang_path} {" ".join(flags)} {" ".join(inputs)} -o {output_path}'
+		o_node.flags = ['-c']
+		o_node.resolve_command()
 	return len(obj_nodes) > 0
 
 file_handlers = {
@@ -184,7 +182,9 @@ def handle_meta_targets():
 			if node.filename == target['Name'] and node.extension == '.exe':
 				target_node = node
 				break
-		if target_node is None: target_node = Node(shared.initial_path.joinpath(f'{target["Name"]}.exe'))
+		if target_node is None:
+			target_node = Node(shared.initial_path.joinpath(f'{target["Name"]}.exe'))
+			target_node.flags = ['-fuse-ld=lld']
 
 		# Get nodes that belong to target
 		node_group = get_node_group(Path(target['Location']))
@@ -194,13 +194,19 @@ def handle_meta_targets():
 			target_node.add_parents(obj_node)
 
 		# Generate command
-		flags = ['-fuse-ld=lld']
-		inputs: list[str] = []
-		for node in target_node.parents:
-			inputs.append(str(node.path))
-		target_node.command = f'{shared.clang_path} {" ".join(flags)} {" ".join(inputs)} -o {target_node.path}'
+		target_node.resolve_command()
 
 	return
+
+def handle_meta_build_options():
+	# Iterate over build options
+	for build_option in shared.meta['BuildOptions']:
+		# Get node group for build option path
+		node_group = get_node_group(Path(build_option['Location']))
+		# Update build options in all nodes in node group
+		for node in node_group:
+			if 'Standard' in build_option and node.extension in ['.hpp', '.cpp', '.ii', '.obj']:
+				node.flags.append(f'std={build_option["Standard"]}')
 
 def iterate_graph():
 	reiterate = False
@@ -210,6 +216,7 @@ def iterate_graph():
 		handle_meta_includes()
 		handle_meta_sources()
 		handle_meta_targets()
+		handle_meta_build_options()
 
 	# Generate nodes with file handlers
 	for node in nodes:

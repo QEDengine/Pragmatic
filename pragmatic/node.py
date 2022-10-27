@@ -32,7 +32,10 @@ class Node(Slots):
 		self.dir: Path = path.parent
 
 		self.command: str = ''
+		self.flags: list[str] = []
+		
 		self.hash: str = ''
+		self.flag_hash: str = ''
 
 		graph.nodes.append(self)
 
@@ -47,13 +50,22 @@ class Node(Slots):
 		return all(parent.is_valid for parent in self.parents)
 
 	@property
+	def is_command_valid(self):
+		return self.flag_hash == utility.hash_str(''.join(self.flags))
+
+	@property
 	def is_valid(self) -> bool:
-		return self.is_hash_valid and self.is_parents_valid
+		return self.is_hash_valid and self.is_parents_valid and self.is_command_valid
 
 	# Methods
 
 	def CalculateHash(self):
 		self.hash = utility.hash_file(self.path)
+		self.flag_hash = utility.hash_str(''.join(self.flags))
+
+	def resolve_command(self):
+		inputs = [str(parent.path) for parent in self.parents]
+		self.command = f'{shared.clang_path} {" ".join(self.flags)} {" ".join(inputs)} -o {self.path}'
 
 	# Node edges
 

@@ -2,6 +2,8 @@ from pathlib import Path
 from typing import Final
 import json
 
+from .build_options import build_options
+
 # Constants
 PRAGMATIC_MACRO: Final[str] = 'PRAGMATIC_FILE_PATH'
 META_FILE: Final[str] = 'meta.json'
@@ -15,3 +17,4 @@ meta_path: Path = None
 
 # Variables
 meta: json = None
+server: bool = False

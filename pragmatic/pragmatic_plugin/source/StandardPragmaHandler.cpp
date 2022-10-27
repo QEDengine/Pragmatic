@@ -64,8 +64,31 @@ namespace QED { namespace Pragmatic
 		}
 		standard = standard.substr(1, standard.size() - 2);
 
+		auto& sm = diagnostics.getSourceManager();
+		std::string path = TrunkateClangPath(location.printToString(sm));
+
 		auto meta = QED::Pragmatic::GetJSON();
-		meta["BuildOptions"]["Standard"] = standard;
+
+		bool found = false;
+		for (auto& buildOption : meta["BuildOptions"])
+		{
+			if (buildOption.contains("Location") && buildOption["Location"] == path)
+			{
+				// Error handling : In a given file, only one build type is allowed.
+				// Due to includes, redefinitions of the same build type are allowed.
+				if (buildOption.contains("Standard") && buildOption["Standard"] != standard)
+				{
+					unsigned ID = diagnostics.getCustomDiagID(clang::DiagnosticsEngine::Error, "#pragma type can only be defined once per target. It is redifined in the same file.");
+					diagnostics.Report(location, ID);
+				}
+
+				buildOption["Standard"] = standard;
+				found = true;
+			}
+		}
+		if (!found)
+			meta["BuildOptions"].push_back({ { "Standard", standard }, {"Location", path } });
+
 		std::ofstream sourceJson(QED::Pragmatic::metaFilePath);
 		sourceJson << std::setw(4) << meta;
 	}

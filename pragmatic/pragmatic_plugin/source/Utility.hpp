@@ -19,6 +19,12 @@ using json = nlohmann::ordered_json;
 
 namespace QED { namespace Pragmatic
 {
+		inline std::string ReplaceSlashes(std::string& str)
+		{
+			std::replace(str.begin(), str.end(), '\\', '/');
+			return str;
+		}
+
 		inline std::string TrunkateClangPath(std::string path)
 		{
 			// Remove "Source"
@@ -29,7 +35,7 @@ namespace QED { namespace Pragmatic
 				path.erase(0, 1);
 			}
 			// Replace any backslashes
-			std::replace(path.begin(), path.end(), '\\', '/');
+			path = ReplaceSlashes(path);
 
 			// Remove character position from the end : "some/dir/header.hpp"
 			path = path.substr(0, path.find(':'));

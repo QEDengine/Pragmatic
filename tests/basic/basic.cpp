@@ -1,8 +1,14 @@
-#include <iostream>
+// Source header
 #include "basic.hpp"
+// Standard library
+#include <iostream>
+// Project
+#include "Foo.hpp"
+// Using directives
 using namespace std;
 
-#include "Foo.hpp"
+// Config
+#pragma standard "c++17"
 
 int main()
 {

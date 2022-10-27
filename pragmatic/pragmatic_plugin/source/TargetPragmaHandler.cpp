@@ -90,7 +90,7 @@ namespace QED { namespace Pragmatic
 			}
 			if (!found)
 			{
-				meta["Targets"].push_back({ { "Name", targetName }, {"Location", path } });
+				meta["Targets"].push_back({ { "Name", targetName }, {"Location", ReplaceSlashes(path) } });
 			}
 		}
 		

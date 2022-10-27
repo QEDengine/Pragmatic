@@ -105,8 +105,9 @@ def get_release(release: str, name: str, dir: Path):
 # Commands
 
 @click.group()
-def cli():
-    pass
+@click.option('--server/--no-server', default=False)
+def cli(server: bool):
+	shared.server = server
 
 @click.command()
 def init():
@@ -135,7 +136,6 @@ def build(path: str):
 def main():
 	print(f'Running pragmatic version {__version__}.')
 
-	thread.start_new_thread(flaskThread, ())
 
 	cli.add_command(init)
 	cli.add_command(build)
@@ -146,6 +146,7 @@ def main():
 		# re-raise unless click.main() finished without an error
 		if err.code:
 			raise
-
-	while True:
-		pass
+	if shared.server:
+		thread.start_new_thread(flaskThread, ())
+		while True:
+			pass

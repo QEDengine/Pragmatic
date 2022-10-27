@@ -1,4 +1,5 @@
 import hashlib
+import copy
 
 # Hash
 
@@ -16,3 +17,13 @@ def hash_str(str: str) -> str:
 	hasher = hashlib.sha1()
 	hasher.update(str.encode('utf-8'))
 	return hasher.hexdigest()
+
+def merge(source, destination):
+    for key, value in source.items():
+        if isinstance(value, dict):
+            node = destination.setdefault(key, {})
+            merge(value, node)
+        else:
+            destination[key] = value
+
+    return destination
