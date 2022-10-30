@@ -29,15 +29,16 @@ jobs:
       - name: Configure
         shell: cmd
         run: |
-          call python Scripts\LLVM\configure.py
+          call python scripts\configure_llvm.py
       - name: Build
         shell: cmd
         run: |
-          call python Scripts\LLVM\build.py
+          call python scripts\build_llvm.py
       - name: Install
         shell: cmd
         run: |
-          call python Scripts\LLVM\install.py
+          call python scripts\install_llvm.py
+          
       - name: Zip
         shell: cmd
         run: 7z a LLVM.zip ./Install/*
