@@ -32,10 +32,29 @@
 			"program": "${workspaceFolder}/pragmatic/LLVM/bin/clang.exe",
 			"args": [
 				"-E",
-				"tests/basic/basic.cpp",
+				"pragmatic/pragmatic_plugin/debug/debug_source.cpp",
 				"-o", "tests/basic/basic.ii",
 				"-fplugin=${workspaceFolder}/pragmatic/pragmatic_plugin/build/PragmaticPlugin.dll",
-				"-DPRAGMATIC_FILE_PATH=\"${workspaceFolder}/tests/basic/meta.json\"",
+				"-DPRAGMATIC_FILE_PATH=\"${workspaceFolder}/pragmatic/pragmatic_plugin/debug/meta.json\"",
+				"--include=${workspaceFolder}/pragmatic/include/preamble.hpp"
+			]
+		},
+		{
+			"name": "Pragmatic Plugin Debug",
+			"type": "cppvsdbg",
+			"request": "launch",
+			"console": "integratedTerminal",
+			"symbolSearchPath": "${workspaceFolder}/pragmatic/pragmatic_plugin/build",
+			"cwd": "${workspaceFolder}/pragmatic/pragmatic_plugin/debug/",
+			"program": "${workspaceFolder}/pragmatic/LLVM/bin/clang.exe",
+			"args": [
+				"-E",
+				// "-fsyntax-only",
+				"-std=c++17",
+				"debug_source.cpp",
+				"-o", "debug_source.ii",
+				"-fplugin=${workspaceFolder}/pragmatic/pragmatic_plugin/build/PragmaticPlugin.dll",
+				"-DPRAGMATIC_FILE_PATH=\"${workspaceFolder}/pragmatic/pragmatic_plugin/debug/meta.json\"",
 				"--include=${workspaceFolder}/pragmatic/include/preamble.hpp"
 			]
 		}

@@ -6,59 +6,29 @@
 #include <fstream>
 #include <filesystem>
 #include <iomanip>
-
+#include <regex>
 // Clang
+#include <clang/Lex/Preprocessor.h>
 #include <clang/Lex/PreprocessorOptions.h>
-
-// JSON
+// External
 #include <nlohmann/json.hpp>
 using json = nlohmann::ordered_json;
 
-// Pragmatic
-#include "Globals.hpp"
-
 namespace QED { namespace Pragmatic
 {
-		inline std::string ReplaceSlashes(std::string& str)
+		inline std::string Replace(std::string str, std::string substring, std::string newValue)
 		{
-			std::replace(str.begin(), str.end(), '\\', '/');
-			return str;
+			return std::regex_replace(str, std::regex(substring), newValue);
 		}
-
-		inline std::string TrunkateClangPath(std::string path)
+		inline std::string GetDirectoryFromPath(std::string path)
 		{
-			// Remove "Source"
-			if (path.find("Source") != std::string::npos) path = path.erase(0, path.find("Source") + sizeof("Source") - 1);
-			// Remove first two characters : "some/dir/header.hpp:x:y"
-			while (path[0] == '.' || path[0] == '\\' || path[0] == '/')
+			std::string directory;
+			const size_t last_slash_idx = path.rfind('\\');
+			if (std::string::npos != last_slash_idx)
 			{
-				path.erase(0, 1);
+				directory = path.substr(0, last_slash_idx);
 			}
-			// Replace any backslashes
-			path = ReplaceSlashes(path);
-
-			// Remove character position from the end : "some/dir/header.hpp"
-			path = path.substr(0, path.find(':'));
-			return path;
-		}
-
-		inline json GetJSON()
-		{
-			std::ifstream sourceFileJson(QED::Pragmatic::metaFilePath);
-			// If file doesn't exitst, create one
-			if (!sourceFileJson)
-			{
-				std::ofstream o(QED::Pragmatic::metaFilePath);
-				o << "{\n}" << std::endl;
-				o.close();
-				sourceFileJson = std::ifstream(QED::Pragmatic::metaFilePath);
-			}
-
-			// Read source file JSON
-			json meta;
-			sourceFileJson >> meta;			
-
-			return meta;
+			return directory;
 		}
 
 		inline std::string GetMacroValue(clang::Preprocessor& preprocessor, std::string macroName)
@@ -75,5 +45,16 @@ namespace QED { namespace Pragmatic
 				}
 			}
 			return "";
+		}
+
+		inline std::string NormalizePath(std::string path, std::string workingDir)
+		{
+			// Remove ./ from the front if it exists
+			if (path[0] == '.' && path[1] == '/')
+			{
+				path = path.substr(2, path.size());
+			}
+
+			return path;
 		}
 }} // namespace QED::Pragmatic

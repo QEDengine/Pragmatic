@@ -9,7 +9,7 @@
 #include <clang/Parse/Parser.h>
 
 // Mirror
-#include "Globals.hpp"
+// #include "Globals.hpp"
 #include "Utility.hpp"
 
 namespace QED { namespace Pragmatic

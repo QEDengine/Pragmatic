@@ -11,7 +11,7 @@ include_directories("${PROJECT_SOURCE_DIR}/../LLVM/include" "${PROJECT_SOURCE_DI
 link_directories("${PROJECT_SOURCE_DIR}/../LLVM/lib/")
 
 # Sources
-file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS *.cpp *.h)
+file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS source/*.cpp source/*.h)
 
 # Project type
 add_library(PragmaticPlugin SHARED ${SOURCES})
