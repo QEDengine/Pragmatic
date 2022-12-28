@@ -35,6 +35,7 @@ namespace QED { namespace Pragmatic
 			// Get meta & save object file as node & create connection between source and object file
 			auto& meta = Meta::GetInstance(preprocessor);
 			meta.json["graph"]["nodes"][sourceFileDir + objectOutput]["metadata"]["defined"] = sourceFilePath;
+			meta.json["graph"]["nodes"][sourceFileDir + sourceInput]["metadata"]["defined"] = sourceFilePath;
 			meta.json["graph"]["edges"].push_back
 			({
 				{"source", sourceInput},

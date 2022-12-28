@@ -1,11 +1,6 @@
 {
     "graph": {
         "nodes": {
-            "other.o": {
-                "metadata": {
-                    "defined": "other.hpp"
-                }
-            },
             "debug_source.cpp": {
                 "metadata": {
                     "defined": "debug_source.cpp",
@@ -19,24 +14,11 @@
             },
             "HelloWorld.exe": {
                 "metadata": {
-                    "defined": "other.hpp"
-                }
-            },
-            "other.hpp": {
-                "metadata": {
                     "defined": "debug_source.cpp"
                 }
             }
         },
         "edges": [
-            {
-                "source": "other.cpp",
-                "target": "other.o",
-                "relation": "object",
-                "metadata": {
-                    "defined": "other.hpp"
-                }
-            },
             {
                 "source": "debug_source.cpp",
                 "target": "debug_source.o",
@@ -51,30 +33,6 @@
                 "relation": "link",
                 "metadata": {
                     "defined": "debug_source.cpp"
-                }
-            },
-            {
-                "source": "other.hpp",
-                "target": "debug_source.cpp",
-                "relation": "include",
-                "metadata": {
-                    "defined": "debug_source.cpp"
-                }
-            },
-            {
-                "source": "other.cpp",
-                "target": "other.o",
-                "relation": "object",
-                "metadata": {
-                    "defined": "other.hpp"
-                }
-            },
-            {
-                "source": "other.o",
-                "target": "HelloWorld.exe",
-                "relation": "link",
-                "metadata": {
-                    "defined": "other.hpp"
                 }
             }
         ]

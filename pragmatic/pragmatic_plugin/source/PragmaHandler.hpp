@@ -37,7 +37,13 @@ namespace QED { namespace Pragmatic
 
 		public: // Clang hooks
 		virtual void HandlePragma(clang::Preprocessor &preprocessor, clang::PragmaIntroducer introducer, clang::Token &sourceToken) final;
-
+		
+		protected:
+		void SetShouldRecompile();
+		public:
+		static bool ShouldRecompile();
+		static void ResetRecompile();
+		
 		protected: // Inherited customization methods
 		virtual bool CheckTokens(clang::Preprocessor &preprocessor, std::vector<std::string> tokens, clang::DiagnosticsEngine& diagnostics, clang::SourceLocation sourceLocation) = 0;
 		virtual std::string Response(clang::Preprocessor &preprocessor, std::vector<std::string> tokens, clang::DiagnosticsEngine& diagnostics) = 0;

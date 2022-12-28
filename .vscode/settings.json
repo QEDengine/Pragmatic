@@ -97,6 +97,7 @@
 		"xutility": "cpp",
 		"complex": "cpp",
 		"*.def": "cpp",
-		"*.inc": "cpp"
+		"*.inc": "cpp",
+		"typeindex": "cpp"
 	},
 }

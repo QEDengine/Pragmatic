@@ -13,7 +13,7 @@
 			"type": "python",
 			"request": "launch",
 			"module": "pragmatic",
-			"args": ["build", "tests/basic/basic.cpp"]
+			"args": ["build", "${workspaceFolder}/pragmatic/pragmatic_plugin/debug/debug_source.cpp"]
 		},
 		{
 			"name": "Pragmatic CLI",
@@ -28,31 +28,15 @@
 			"request": "launch",
 			"console": "integratedTerminal",
 			"symbolSearchPath": "${workspaceFolder}/pragmatic/pragmatic_plugin/build",
-			"cwd": "${workspaceFolder}",
-			"program": "${workspaceFolder}/pragmatic/LLVM/bin/clang.exe",
-			"args": [
-				"-E",
-				"pragmatic/pragmatic_plugin/debug/debug_source.cpp",
-				"-o", "tests/basic/basic.ii",
-				"-fplugin=${workspaceFolder}/pragmatic/pragmatic_plugin/build/PragmaticPlugin.dll",
-				"-DPRAGMATIC_FILE_PATH=\"${workspaceFolder}/pragmatic/pragmatic_plugin/debug/meta.json\"",
-				"--include=${workspaceFolder}/pragmatic/include/preamble.hpp"
-			]
-		},
-		{
-			"name": "Pragmatic Plugin Debug",
-			"type": "cppvsdbg",
-			"request": "launch",
-			"console": "integratedTerminal",
-			"symbolSearchPath": "${workspaceFolder}/pragmatic/pragmatic_plugin/build",
 			"cwd": "${workspaceFolder}/pragmatic/pragmatic_plugin/debug/",
 			"program": "${workspaceFolder}/pragmatic/LLVM/bin/clang.exe",
 			"args": [
-				"-E",
+				// "-E",
+				"-c",
 				// "-fsyntax-only",
-				"-std=c++17",
+				// "-std=c++17",
 				"debug_source.cpp",
-				"-o", "debug_source.ii",
+				"-o", "debug_source.o",
 				"-fplugin=${workspaceFolder}/pragmatic/pragmatic_plugin/build/PragmaticPlugin.dll",
 				"-DPRAGMATIC_FILE_PATH=\"${workspaceFolder}/pragmatic/pragmatic_plugin/debug/meta.json\"",
 				"--include=${workspaceFolder}/pragmatic/include/preamble.hpp"

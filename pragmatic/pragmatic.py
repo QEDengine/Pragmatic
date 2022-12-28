@@ -3,7 +3,6 @@
 """Pragmatic.Pragmatic: provides entry point main()."""
 
 from .__init__ import __version__
-from .graph import get_latest_visual_graph, get_next_visual_graph, scan_directory
 
 import os
 from pathlib import Path
@@ -20,6 +19,7 @@ import pandas as pd
 import numpy as np
 
 from . import shared
+from . import graph
 
 # Flask server
 
@@ -34,20 +34,21 @@ def index():
 
 @app.route('/miserables.json', methods=['GET'])
 def get_miserables():
-	data = get_latest_visual_graph()
+	# data = get_latest_visual_graph()
 	return jsonify(data)
 
 def loop_visual_graphs():
 	'''this could be any function that blocks until data is ready'''
 	time.sleep(3.0)
-	data = json.dumps(get_next_visual_graph())
-	return data
+	# data = json.dumps(get_next_visual_graph())
+	# return data
 
 def latest_visual_graph():
 	while True:
-		visual_graph = get_latest_visual_graph()
-		if visual_graph is not None:
-			return visual_graph
+		# visual_graph = get_latest_visual_graph()
+		# if visual_graph is not None:
+		# 	return visual_graph
+		pass
 
 @app.route('/stream')
 def stream():
@@ -119,17 +120,19 @@ def init():
 @click.argument('path', type=click.Path(exists=True))
 def build(path: str):
 	path = Path(path)
-	# if a file was given, change path to it's directory
-	if path.is_file():
-		path = path.parent
+	# TODO: Check if not dir path
+
+	# Get source dir
+	shared.initial_path_dir = path.parent
 
 	# set initial path given to pragmatic
 	shared.initial_path = path
-	shared.meta_path = path.joinpath(shared.META_FILE)
+	shared.meta_path = shared.initial_path_dir.joinpath(shared.META_FILE)
 
 	# begin build
 	print(f'Building {shared.initial_path}')
-	scan_directory(Path(path))
+
+	graph.iterate_graph()
 
 # Main
 

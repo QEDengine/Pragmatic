@@ -11,6 +11,7 @@
 
 namespace QED { namespace Pragmatic
 {
+	static bool shouldRecompile = false;
 
 	void PragmaHandler::HandlePragma(clang::Preprocessor &preprocessor, clang::PragmaIntroducer introducer, clang::Token &sourceToken)
 	{
@@ -87,9 +88,21 @@ namespace QED { namespace Pragmatic
 			const auto& location = token.getLocation();
 			sourceManager.AddLineNote(location, 50, sourceManager.getLineTableFilenameID(sourceManager.getFilename(location)), true, false, clang::SrcMgr::C_User);
 		}
-		
-		
-		
+	}
+
+	void PragmaHandler::SetShouldRecompile()
+	{
+		shouldRecompile = true;
+	}
+
+	bool PragmaHandler::ShouldRecompile()
+	{
+		return shouldRecompile;
+	}
+
+	void PragmaHandler::ResetRecompile()
+	{
+		shouldRecompile = false;
 	}
 
 }} // namespace QED::Pragmatic
