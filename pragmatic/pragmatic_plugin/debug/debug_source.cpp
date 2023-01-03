@@ -4,7 +4,7 @@
 #pragma standard "C++17"
 
 #pragma object "debug_source.cpp" "debug_source.o"
-#pragma link "HelloWorld.exe"
+#pragma link "debug_source.o" "HelloWorld.exe"
 
 // #include "other.hpp"
 

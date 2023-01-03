@@ -4,17 +4,21 @@
             "debug_source.cpp": {
                 "metadata": {
                     "defined": "debug_source.cpp",
-                    "standard": "c++17"
+                    "standard": "c++17",
+                    "hash": "3693791aaaab2f3be2daa8a5c4d97a519b78f526"
                 }
             },
             "debug_source.o": {
                 "metadata": {
-                    "defined": "debug_source.cpp"
+                    "defined": "debug_source.cpp",
+                    "hash": "10a68fbf2afd36788976b4acc40b8d1298662127"
                 }
             },
             "HelloWorld.exe": {
                 "metadata": {
-                    "defined": "debug_source.cpp"
+                    "defined": "debug_source.cpp",
+                    "hash": "e99b8c8bd8bc286bef5be476b53bcad62e172395",
+                    "input_hash": "428a373910cfc750c88c6b80284d6e5354462434"
                 }
             }
         },
@@ -28,7 +32,7 @@
                 }
             },
             {
-                "source": "debug_source.cpp",
+                "source": "debug_source.o",
                 "target": "HelloWorld.exe",
                 "relation": "link",
                 "metadata": {

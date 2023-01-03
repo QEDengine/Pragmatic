@@ -68,6 +68,19 @@ def compile_source_file(path: Path, metadata: object = None) -> bool:
 		return True if return_code == 0 else False
 	else: return False
 
+@typechecked
+def link_files(paths: list[Path], out_path: Path) -> bool:
+	rel_out_path = shared.initial_path_dir.joinpath(out_path).relative_to(shared.initial_path_dir)
+	command = ' '.join([
+		f'{shared.clang_path} -o {rel_out_path}'	# Clang_path -c source.cpp -o source.o
+	])
+
+	for path in paths:
+		command += ' ' + str(path)
+
+	return_code = run_subprocess(command, shared.initial_path_dir)
+	return True if return_code == 0 else False
+
 
 
 def iterate_graph():
@@ -77,23 +90,59 @@ def iterate_graph():
 		success = compile_source_file(shared.initial_path)
 		load_meta()
 
-	# Calculate hashes
+	# Build object files
 	for edge in shared.meta['graph']['edges']:
 		if edge['relation'] == 'object':
-			success = compile_source_file(Path(edge['source']), shared.meta['graph']['nodes'][edge['source']]['metadata'])
+			source_path = resolve_meta_paths(edge['source'])
+			# If hashes match, do not recompile
+			if 'hash' in shared.meta['graph']['nodes'][edge['source']]['metadata'] and 'hash' in shared.meta['graph']['nodes'][edge['target']]['metadata']:
+				if shared.meta['graph']['nodes'][edge['source']]['metadata']['hash'] == utility.hash_file(source_path):
+					if shared.meta['graph']['nodes'][edge['target']]['metadata']['hash'] == utility.hash_file(resolve_meta_paths(edge['target'])):
+						print(f'Source {edge["source"]} is up to date')
+						continue
+			success = compile_source_file(source_path, shared.meta['graph']['nodes'][edge['source']]['metadata'])
 			print(f'Build {"succeded" if success == 1 else "failed"} : {edge["source"]}')
+			if success:
+				# Hash source file
+				s_hash = utility.hash_file(source_path)
+				shared.meta['graph']['nodes'][edge['source']]['metadata']['hash'] = s_hash
+				# Hash object file
+				o_hash = utility.hash_file(resolve_meta_paths(edge['target']))
+				shared.meta['graph']['nodes'][edge['target']]['metadata']['hash'] = o_hash
 
+	# Link
+	# Get targets
+	targets = []
+	for edge in shared.meta['graph']['edges']:
+		if edge['target'] not in targets and edge['relation'] == 'link':
+			targets.append(edge['target'])
+	for target in targets:
+		can_build_target = True
+		objects_to_link = []
+		object_hashes = ''
+		for edge in shared.meta['graph']['edges']:
+			if edge['target'] == target:
+				if shared.meta['graph']['nodes'][edge['source']]['metadata']['hash'] != utility.hash_file(resolve_meta_paths(edge['source'])):
+					can_build_target = False
+				else:
+					objects_to_link.append(resolve_meta_paths(edge['source']))
+					object_hashes += shared.meta['graph']['nodes'][edge['source']]['metadata']['hash']
+		if can_build_target and len(objects_to_link) > 0:
+			# Check hashes
+			if resolve_meta_paths(target).exists() and 'hash' in shared.meta['graph']['nodes'][target]['metadata']:
+				if 'input_hash' in shared.meta['graph']['nodes'][target]['metadata'] and shared.meta['graph']['nodes'][target]['metadata']['input_hash'] == utility.hash_str(object_hashes):
+					if shared.meta['graph']['nodes'][target]['metadata']['hash'] == utility.hash_file(resolve_meta_paths(target)):
+						print(f'Target {target} is up to date')
+						continue
 
-	# for node in shared.meta['graph']['nodes']:
-	# 	resolved_node_path: Path = resolve_meta_paths(node)
-	# 	if resolved_node_path.exists():
-	# 		hash = utility.hash_file(resolved_node_path)
-	# 		shared.meta['graph']['nodes'][node]['metadata']['hash'] = hash
-
-	# 		if resolved_node_path.suffix == '.cpp':
-	# 			success = compile_source_file(shared.initial_path, shared.meta['graph']['nodes'][node]['metadata'])
+			print(f'Building target : {target}')
+			success = link_files(objects_to_link, resolve_meta_paths(target))
+			if success:
+				# Hash target
+				t_hash = utility.hash_file(resolve_meta_paths(target))
+				shared.meta['graph']['nodes'][target]['metadata']['hash'] = t_hash
+				# Hash input names
+				shared.meta['graph']['nodes'][target]['metadata']['input_hash'] = utility.hash_str(object_hashes)
 			
 
-
 	save_meta()
-	# Run edges
