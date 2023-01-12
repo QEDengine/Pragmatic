@@ -6,14 +6,16 @@
 			"type": "python",
 			"request": "launch",
 			"program": "${file}",
-			"console": "integratedTerminal"
+			"console": "integratedTerminal",
+			"justMyCode": false
 		},
 		{
 			"name": "Pragmatic",
 			"type": "python",
 			"request": "launch",
 			"module": "pragmatic",
-			"args": ["build", "${workspaceFolder}/pragmatic/pragmatic_plugin/debug/debug_source.cpp"]
+			"args": ["build", "${workspaceFolder}/pragmatic/pragmatic_plugin/debug/debug_source.cpp"],
+			"justMyCode": false
 		},
 		{
 			"name": "Pragmatic CLI",
@@ -34,7 +36,7 @@
 				// "-E",
 				"-c",
 				// "-fsyntax-only",
-				// "-std=c++17",
+				"-std=c++17",
 				"debug_source.cpp",
 				"-o", "debug_source.o",
 				"-fplugin=${workspaceFolder}/pragmatic/pragmatic_plugin/build/PragmaticPlugin.dll",

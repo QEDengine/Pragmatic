@@ -36,13 +36,29 @@ namespace QED { namespace Pragmatic
 			auto& meta = Meta::GetInstance(preprocessor);
 			meta.json["graph"]["nodes"][sourceFileDir + objectOutput]["metadata"]["defined"] = sourceFilePath;
 			meta.json["graph"]["nodes"][sourceFileDir + sourceInput]["metadata"]["defined"] = sourceFilePath;
-			meta.json["graph"]["edges"].push_back
-			({
-				{"source", sourceInput},
-				{"target", objectOutput},
-				{"relation", OBJECT_PRAGMA_TOKEN},
-				{"metadata", {{"defined", sourceFilePath}}}
-			});
+
+			// Check if edge exists
+			bool edgeExists = false;
+			for (auto& edge : meta.json["graph"]["edges"])
+			{
+				if (edge["source"] == sourceInput && edge["target"] == objectOutput && edge["relation"] == OBJECT_PRAGMA_TOKEN && edge["metadata"]["defined"] == sourceFilePath)
+				{
+					edgeExists = true;
+					break;
+				}
+			}
+
+			// Add edge if not already in meta
+			if (!edgeExists)
+			{
+				meta.json["graph"]["edges"].push_back
+				({
+					{"source", sourceInput},
+					{"target", objectOutput},
+					{"relation", OBJECT_PRAGMA_TOKEN},
+					{"metadata", {{"defined", sourceFilePath}}}
+				});
+			}
 
 			return true;
 		}
@@ -64,13 +80,28 @@ namespace QED { namespace Pragmatic
 			// Get meta & save object file as node & create connection between source and object file
 			auto& meta = Meta::GetInstance(preprocessor);
 			meta.json["graph"]["nodes"][sourceFileDir + binaryOutput]["metadata"]["defined"] = sourceFilePath;
-			meta.json["graph"]["edges"].push_back
-			({
-				{"source", objectInput},
-				{"target", binaryOutput},
-				{"relation", LINK_PRAGMA_TOKEN},
-				{"metadata", {{"defined", sourceFilePath}}}
-			});
+
+			// Check if edge exists
+			bool edgeExists = false;
+			for (auto& edge : meta.json["graph"]["edges"])
+			{
+				if (edge["source"] == objectInput && edge["target"] == binaryOutput && edge["relation"] == LINK_PRAGMA_TOKEN && edge["metadata"]["defined"] == sourceFilePath)
+				{
+					edgeExists = true;
+					break;
+				}
+			}
+
+			if (!edgeExists)
+			{
+				meta.json["graph"]["edges"].push_back
+				({
+					{"source", objectInput},
+					{"target", binaryOutput},
+					{"relation", LINK_PRAGMA_TOKEN},
+					{"metadata", {{"defined", sourceFilePath}}}
+				});
+			}
 
 			return true;
 		}

@@ -1,9 +1,11 @@
-
+// Source header
+#include "other.hpp"
 
 #include <iostream>
 
 
-void print(std::string msg)
+
+void print_msg(std::string msg)
 {
 	std::cout << msg << std::endl; 
 }

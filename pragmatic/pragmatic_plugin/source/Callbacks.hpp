@@ -62,13 +62,28 @@ namespace QED { namespace Pragmatic
 
 				auto& meta = Meta::GetInstance(preprocessor);
 				meta.json["graph"]["nodes"][RelativePath.str()]["metadata"]["defined"] = path;
-				meta.json["graph"]["edges"].push_back
-				({
-					{"source", RelativePath.str()},
-					{"target", path},
-					{"relation", INCLUDE_TOKEN},
-					{"metadata", {{"defined", path}}}
-				});
+
+				// Check if edge exists
+				bool edgeExists = false;
+				for (auto& edge : meta.json["graph"]["edges"])
+				{
+					if (edge["source"] == RelativePath.str() && edge["target"] == path && edge["relation"] == INCLUDE_TOKEN && edge["metadata"]["defined"] == path)
+					{
+						edgeExists = true;
+						break;
+					}
+				}
+				
+				if (!edgeExists)
+				{
+					meta.json["graph"]["edges"].push_back
+					({
+						{"source", RelativePath.str()},
+						{"target", path},
+						{"relation", INCLUDE_TOKEN},
+						{"metadata", {{"defined", path}}}
+					});
+				}
 			}
 		}
 	};
@@ -85,7 +100,7 @@ namespace QED { namespace Pragmatic
 			auto mainFileID = preprocessor.getSourceManager().getFileEntryForID(preprocessor.getSourceManager().getMainFileID())->getName().str();
 
 			auto& meta = Meta::GetInstance(preprocessor);
-			meta.ClearDefinitionsForFile(mainFileID);
+			// meta.ClearDefinitionsForFile(mainFileID);
 
 			preprocessor.addPPCallbacks(std::make_unique<EndOfMainFileCallback>(preprocessor));
 			preprocessor.addPPCallbacks(std::make_unique<IncludeCallback>(preprocessor));

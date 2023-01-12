@@ -32,7 +32,10 @@ namespace QED { namespace Pragmatic {
 			// Read source file JSON
 			sourceFileJson >> instance.json;
 		
+			// llvm::outs() << "Loaded meta : \n" << instance.json.dump(2) << "\n\n";
 		}
+
+
 		return instance;
 	}
 

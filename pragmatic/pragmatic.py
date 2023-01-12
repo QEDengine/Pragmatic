@@ -132,7 +132,8 @@ def build(path: str):
 	# begin build
 	print(f'Building {shared.initial_path}')
 
-	graph.iterate_graph()
+	graph.iterate()
+	# graph.iterate_graph()
 
 # Main
 

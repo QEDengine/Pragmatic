@@ -5,20 +5,43 @@
                 "metadata": {
                     "defined": "debug_source.cpp",
                     "standard": "c++17",
-                    "hash": "3693791aaaab2f3be2daa8a5c4d97a519b78f526"
+                    "hash": "68aefd70d38a47b0138c5583d796175e6a498a61"
                 }
             },
             "debug_source.o": {
                 "metadata": {
                     "defined": "debug_source.cpp",
-                    "hash": "10a68fbf2afd36788976b4acc40b8d1298662127"
+                    "hash": "b94ad3011d137dd63b001097339e02582fd564f4"
                 }
             },
             "HelloWorld.exe": {
                 "metadata": {
+                    "defined": "other.hpp",
+                    "hash": "63381d6ff5dd456c7cf2244a05ad8965f7fe33bc"
+                }
+            },
+            "other.hpp": {
+                "metadata": {
                     "defined": "debug_source.cpp",
-                    "hash": "e99b8c8bd8bc286bef5be476b53bcad62e172395",
-                    "input_hash": "428a373910cfc750c88c6b80284d6e5354462434"
+                    "hash": "610d9dc50f7955b029a76604793802eb7adf872d"
+                }
+            },
+            "other.o": {
+                "metadata": {
+                    "defined": "other.hpp",
+                    "hash": "23d8a07eda6afb8e4daa59965fbc375f4ccd03c9"
+                }
+            },
+            "other.cpp": {
+                "metadata": {
+                    "defined": "other.hpp",
+                    "hash": "671da4aa091babc0a83261138feaa10d09a057e8"
+                }
+            },
+            "debug_source.hpp": {
+                "metadata": {
+                    "defined": "debug_source.cpp",
+                    "hash": "c7d927027b38807cdb9d2fe7fd1f7dcd12fd4480"
                 }
             }
         },
@@ -28,13 +51,75 @@
                 "target": "debug_source.o",
                 "relation": "object",
                 "metadata": {
-                    "defined": "debug_source.cpp"
+                    "defined": "debug_source.cpp",
+                    "command": "{clang_path} -c {path} -o {out_path} -std=c++17 -fplugin={pragmatic_plugin_path} -DPRAGMATIC_FILE_PATH=\"{meta_path}\" --include={preamble_path}",
+                    "hash": "b94ad3011d137dd63b001097339e02582fd564f4",
+                    "input_hashes": [
+                        "68aefd70d38a47b0138c5583d796175e6a498a61",
+                        "610d9dc50f7955b029a76604793802eb7adf872d",
+                        "c7d927027b38807cdb9d2fe7fd1f7dcd12fd4480"
+                    ]
                 }
             },
             {
                 "source": "debug_source.o",
                 "target": "HelloWorld.exe",
                 "relation": "link",
+                "metadata": {
+                    "defined": "debug_source.cpp",
+                    "hash": "63381d6ff5dd456c7cf2244a05ad8965f7fe33bc",
+                    "input_hashes": [
+                        "b94ad3011d137dd63b001097339e02582fd564f4",
+                        "23d8a07eda6afb8e4daa59965fbc375f4ccd03c9",
+                        "68aefd70d38a47b0138c5583d796175e6a498a61",
+                        "671da4aa091babc0a83261138feaa10d09a057e8",
+                        "610d9dc50f7955b029a76604793802eb7adf872d",
+                        "c7d927027b38807cdb9d2fe7fd1f7dcd12fd4480"
+                    ]
+                }
+            },
+            {
+                "source": "other.hpp",
+                "target": "debug_source.cpp",
+                "relation": "include",
+                "metadata": {
+                    "defined": "debug_source.cpp"
+                }
+            },
+            {
+                "source": "other.cpp",
+                "target": "other.o",
+                "relation": "object",
+                "metadata": {
+                    "defined": "other.hpp",
+                    "command": "{clang_path} -c {path} -o {out_path}  -fplugin={pragmatic_plugin_path} -DPRAGMATIC_FILE_PATH=\"{meta_path}\" --include={preamble_path}",
+                    "hash": "23d8a07eda6afb8e4daa59965fbc375f4ccd03c9",
+                    "input_hashes": [
+                        "671da4aa091babc0a83261138feaa10d09a057e8"
+                    ]
+                }
+            },
+            {
+                "source": "other.o",
+                "target": "HelloWorld.exe",
+                "relation": "link",
+                "metadata": {
+                    "defined": "other.hpp",
+                    "hash": "63381d6ff5dd456c7cf2244a05ad8965f7fe33bc",
+                    "input_hashes": [
+                        "b94ad3011d137dd63b001097339e02582fd564f4",
+                        "23d8a07eda6afb8e4daa59965fbc375f4ccd03c9",
+                        "68aefd70d38a47b0138c5583d796175e6a498a61",
+                        "671da4aa091babc0a83261138feaa10d09a057e8",
+                        "610d9dc50f7955b029a76604793802eb7adf872d",
+                        "c7d927027b38807cdb9d2fe7fd1f7dcd12fd4480"
+                    ]
+                }
+            },
+            {
+                "source": "debug_source.hpp",
+                "target": "debug_source.cpp",
+                "relation": "include",
                 "metadata": {
                     "defined": "debug_source.cpp"
                 }
