@@ -23,7 +23,7 @@ namespace QED::Pragmatic
 			unsigned ID = diagnostics.getCustomDiagID(clang::DiagnosticsEngine::Error, "Not preprocessing with the same language standard as required by pragma");
 			diagnostics.Report(sourceLocation, ID);
 			
-			exit(42);
+			Meta::Instance().Write(preprocessor, true);
 			return false;
 		}
 

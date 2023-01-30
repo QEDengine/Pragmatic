@@ -312,7 +312,7 @@ namespace QED::Pragmatic
 		return patches;
 	}
 
-	void Meta::Write(clang::Preprocessor& preprocessor)
+	void Meta::Write(clang::Preprocessor& preprocessor, bool exit)
 	{
 		metaFilePath = (GetMacroValue(preprocessor, "PRAGMATIC_FILE_PATH"));
 		
@@ -346,5 +346,8 @@ namespace QED::Pragmatic
 		ss << std::setw(4) << nodePatch << '\n';
 		ss << std::setw(4) << edgePatch;
 		llvm::outs() << ss.str();
+
+		// Exit if explicitly told so
+		if (exit) ::exit(42);
 	}
 } // namesapce QED::Pragmatic

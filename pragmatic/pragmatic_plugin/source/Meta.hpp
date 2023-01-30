@@ -50,7 +50,7 @@ namespace QED::Pragmatic
 		::json GeneratePatchesForEdges();
 
 		public:
-		void Write(clang::Preprocessor& preprocessor);
+		void Write(clang::Preprocessor& preprocessor, bool exit=false);
 		
 		private:
 		std::string metaFilePath;

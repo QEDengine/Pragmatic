@@ -39,7 +39,7 @@ def run_subprocess(command: str, cwd: Path) -> int:
 	return process.poll()
 
 @typechecked
-def compile_source_file(path: Path, metadata: object = None) -> bool:
+def compile_source_file(path: Path) -> int:
 	rel_path = shared.initial_path_dir.joinpath(path).relative_to(shared.initial_path_dir)
 	command = ' '.join([
 		f'{shared.clang_path} -c {rel_path} -o {rel_path.with_suffix(".o")}',	# Clang_path -c source.cpp -o source.o
@@ -47,13 +47,13 @@ def compile_source_file(path: Path, metadata: object = None) -> bool:
 		f'-DPRAGMATIC_FILE_PATH=\"{shared.meta_path}\"',						# -DPRAGMATIC_FILE_PATH="path/to/meta.json"
 		f'--include={shared.pragmatic_preamble_path}',							# --include=.../pragmatic/include/preamble.hpp
 	])
-	if metadata is not None:
-		command += ' ' + ' '.join(interpret_metadata(metadata))
+	if shared.meta is not None:
+		command += ' ' + ' '.join(interpret_metadata(shared.meta['graphs'][0]['nodes'][str(rel_path)]['metadata']))
 
 	if path.is_file and path.suffix == '.cpp':
 		return_code = run_subprocess(command, shared.initial_path_dir)
-		return True if return_code == 0 else False
-	else: return False
+		return return_code
+	else: return 1
 
 @typechecked
 def link_files(paths: list[Path], out_path: Path) -> bool:
@@ -71,7 +71,7 @@ def link_files(paths: list[Path], out_path: Path) -> bool:
 @typechecked
 def load_graph() -> nx.DiGraph:
 	load_meta()
-	data = shared.meta['graph']
+	data = shared.meta['graphs'][0]
 	graph = nx.DiGraph()
 	for node in data['nodes']:
 		graph.add_node(node, metadata=data['nodes'][node]['metadata'])
@@ -130,8 +130,8 @@ def get_nodes_leading_to_node(graph:nx.DiGraph, node: str) -> list[str]:
 @typechecked
 def retrieve_graph_meta(graph: nx.DiGraph) -> None:
 	node_metadata_attributes = nx.get_node_attributes(graph, 'metadata')
-	for node in shared.meta['graph']['nodes']:
-		shared.meta['graph']['nodes'][node]['metadata'] = node_metadata_attributes[node]
+	for node in shared.meta['graphs'][0]['nodes']:
+		shared.meta['graphs'][0]['nodes'][node]['metadata'] = node_metadata_attributes[node]
 
 @typechecked
 def interpret_metadata(metadata: object) -> list[str]:
@@ -240,10 +240,14 @@ def iterate() -> None:
 		# Load meta file
 		exists: bool = load_meta()
 		if not exists:
-			success = compile_source_file(shared.initial_path)
-			if not success:
-				print('Initial compile failed')
-			load_meta()
+			return_code = 1
+			while return_code != 0:
+				return_code = compile_source_file(shared.initial_path)
+				if return_code == 42:
+					print('Initial compile requires different language options')
+				else:
+					print('Initial compile failed')
+				load_meta()
 
 		# Load
 		graph = load_graph()

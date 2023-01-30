@@ -19,6 +19,11 @@
                     "metadata": {
                         "defined": [
                             "debug_source.cpp"
+                        ],
+                        "hash": "a2928d7e8efa149bd366a462067cf1dd0d61b763",
+                        "input_hashes": [
+                            "4741f4b7c7ded51d255345b9a876fce842f22b20",
+                            "070967c2ed5e4e945ce107d71281f5ff4f251153"
                         ]
                     }
                 },
@@ -39,28 +44,32 @@
                         "defined": [
                             "debug_source.cpp"
                         ],
-                        "standard": "c++17"
+                        "standard": "c++17",
+                        "hash": "070967c2ed5e4e945ce107d71281f5ff4f251153"
                     }
                 },
                 "debug_source.o": {
                     "metadata": {
                         "defined": [
                             "debug_source.cpp"
-                        ]
+                        ],
+                        "hash": "4741f4b7c7ded51d255345b9a876fce842f22b20"
                     }
                 },
                 "HelloWorld.exe": {
                     "metadata": {
                         "defined": [
                             "debug_source.cpp"
-                        ]
+                        ],
+                        "hash": "a2928d7e8efa149bd366a462067cf1dd0d61b763"
                     }
                 },
                 "debug_source.hpp": {
                     "metadata": {
                         "defined": [
                             "debug_source.cpp"
-                        ]
+                        ],
+                        "hash": "c7d927027b38807cdb9d2fe7fd1f7dcd12fd4480"
                     }
                 }
             }
