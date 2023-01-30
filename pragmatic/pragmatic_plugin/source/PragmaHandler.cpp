@@ -89,20 +89,4 @@ namespace QED { namespace Pragmatic
 			sourceManager.AddLineNote(location, 50, sourceManager.getLineTableFilenameID(sourceManager.getFilename(location)), true, false, clang::SrcMgr::C_User);
 		}
 	}
-
-	void PragmaHandler::SetShouldRecompile()
-	{
-		shouldRecompile = true;
-	}
-
-	bool PragmaHandler::ShouldRecompile()
-	{
-		return shouldRecompile;
-	}
-
-	void PragmaHandler::ResetRecompile()
-	{
-		shouldRecompile = false;
-	}
-
 }} // namespace QED::Pragmatic

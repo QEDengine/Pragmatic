@@ -41,11 +41,11 @@ namespace QED { namespace Pragmatic
 
 	void RecompileConsumer::HandleTranslationUnit(clang::ASTContext& context)
 	{
-		llvm::errs() << "Should recompile : " << (PragmaHandler::ShouldRecompile() ? "true" : "false") << '\n';
+		llvm::errs() << "Should recompile : " << (false ? "true" : "false") << '\n';
 
-		if (PragmaHandler::ShouldRecompile())
+		if (false)
 		{
-			PragmaHandler::ResetRecompile();
+			//PragmaHandler::ResetRecompile();
 
 			CI.createDiagnostics();
 

@@ -3,7 +3,7 @@
 
 #define STANDARD_PRAGMA_TOKEN "standard"
 
-namespace QED { namespace Pragmatic
+namespace QED::Pragmatic
 {
 	StandardPragma::StandardPragma() : PragmaHandler(STANDARD_PRAGMA_TOKEN, { {}, {true} }, 2) { }
 
@@ -15,18 +15,15 @@ namespace QED { namespace Pragmatic
 		std::transform(standard.begin(), standard.end(), standard.begin(), [](unsigned char c){ return std::tolower(c); });
 
 		// Get meta & save standard
-		auto& meta = Meta::GetInstance(preprocessor);
-		meta.json["graph"]["nodes"][sourceFilePath]["metadata"]["defined"] = sourceFilePath;
-		meta.json["graph"]["nodes"][sourceFilePath]["metadata"]["standard"] = standard;
+		Meta::Node(sourceFilePath, sourceFilePath, standard);
 
 		// If not preprocessing with the same standard, raise error
 		if (preprocessor.getLangOpts().LangStd != clang::LangStandard::getLangKind(standard))
 		{
-			SetShouldRecompile();
-
 			unsigned ID = diagnostics.getCustomDiagID(clang::DiagnosticsEngine::Error, "Not preprocessing with the same language standard as required by pragma");
 			diagnostics.Report(sourceLocation, ID);
 			
+			exit(42);
 			return false;
 		}
 
@@ -37,5 +34,4 @@ namespace QED { namespace Pragmatic
 	{
 		return "";
 	}
-}
 } // namespace QED::Pragmatic

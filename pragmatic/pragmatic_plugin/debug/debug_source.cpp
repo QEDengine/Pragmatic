@@ -4,10 +4,10 @@
 
 #pragma standard "C++17"
 
-#pragma object "debug_source.cpp" "debug_source.o"
+#pragma build "debug_source.cpp" "debug_source.o"
 #pragma link "debug_source.o" "HelloWorld.exe"
 
-#include "other.hpp"
+// #include "other.hpp"
 
 #include "debug_source.hpp"
 
@@ -19,6 +19,6 @@ void print()
 int main()
 {
 	print();
-	print_msg("1 + 2 = " + std::to_string(Add(1, 2)));
+	// print_msg("1 + 2 = " + std::to_string(Add(1, 2)));
 	return 0;
 }
