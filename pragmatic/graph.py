@@ -282,7 +282,7 @@ def iterate() -> None:
 
 			# Generate commands for edges
 			for edge in collected_edges:
-				if edge[1]['relation'] == 'object':
+				if edge[1]['relation'] == 'build':
 					did_process = did_process or generate_object_command(graph, edge)
 			
 			# Return graph meta to meta file
@@ -293,7 +293,7 @@ def iterate() -> None:
 			for edge in collected_edges:
 				# Check rebuild conditions
 				if (check_edge_conditions(graph, edge)):
-					if edge[1]['relation'] == 'object':
+					if edge[1]['relation'] == 'build':
 						# Instantiate command template
 						if 'command' not in edge[1]['metadata']:
 							continue

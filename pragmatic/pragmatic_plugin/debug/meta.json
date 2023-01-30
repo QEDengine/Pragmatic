@@ -9,6 +9,11 @@
                     "metadata": {
                         "defined": [
                             "debug_source.cpp"
+                        ],
+                        "command": "{clang_path} -c {path} -o {out_path} -std=c++17 -fplugin={pragmatic_plugin_path} -DPRAGMATIC_FILE_PATH=\"{meta_path}\" --include={preamble_path}",
+                        "hash": "0b069be4cdbafa05c206b7751a8aa6aa0839b908",
+                        "input_hashes": [
+                            "070967c2ed5e4e945ce107d71281f5ff4f251153"
                         ]
                     }
                 },
@@ -53,7 +58,7 @@
                         "defined": [
                             "debug_source.cpp"
                         ],
-                        "hash": "4741f4b7c7ded51d255345b9a876fce842f22b20"
+                        "hash": "0b069be4cdbafa05c206b7751a8aa6aa0839b908"
                     }
                 },
                 "HelloWorld.exe": {
@@ -69,7 +74,7 @@
                         "defined": [
                             "debug_source.cpp"
                         ],
-                        "hash": "c7d927027b38807cdb9d2fe7fd1f7dcd12fd4480"
+                        "hash": "0801511192f2c83b22a2ee378218f617b54e34ef"
                     }
                 }
             }
