@@ -18,6 +18,15 @@
 			"justMyCode": false
 		},
 		{
+			"name": "Pragmatic Tests",
+			"type": "python",
+			"request": "launch",
+			"module": "unittest",
+			"cwd": "${workspaceFolder}",
+			"args": ["discover", "-s", "tests"],
+			"justMyCode": false
+		},
+		{
 			"name": "Pragmatic CLI",
 			"type": "python",
 			"request": "launch",

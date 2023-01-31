@@ -167,7 +167,7 @@ def execute(in_path: Path|str, out_path: Path|str=None, options: list[str]|str=[
 		f'{shared.clang_path} {options} {rel_in_path} -o {rel_out_path}',	# Clang_path -c source.cpp -o source.o
 		f'-fplugin={shared.pragmatic_plugin_path}',							# -fplugin=.../pragmatic/pragmatic_plugin/build/PragmaticPlugin.dll
 		f'-DPRAGMATIC_FILE_PATH=\"{shared.meta_path}\"',					# -DPRAGMATIC_FILE_PATH="path/to/meta.json"
-		f'--include={shared.pragmatic_preamble_path}',						# --include=.../pragmatic/include/preamble.hpp
+		f'--include={shared.pragmatic_preamble_path}'						# --include=.../pragmatic/include/preamble.hpp
 	])
 
 	if shared.meta is not None:
