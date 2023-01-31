@@ -61,6 +61,16 @@
                             "debug_source.cpp"
                         ]
                     }
+                },
+                {
+                    "source": "other.hpp",
+                    "target": "other.cpp",
+                    "relation": "include",
+                    "metadata": {
+                        "defined": [
+                            "other.cpp"
+                        ]
+                    }
                 }
             ],
             "nodes": {
@@ -78,7 +88,7 @@
                         "defined": [
                             "debug_source.cpp"
                         ],
-                        "hash": "3bcd1ef36fa3b5af1d69913afc948c2f97dabadd"
+                        "hash": "8ee9f764216e3e3eda8226f2ec21a00330bb8817"
                     }
                 },
                 "HelloWorld.exe": {
@@ -87,7 +97,7 @@
                             "debug_source.cpp",
                             "other.hpp"
                         ],
-                        "hash": "dd276f0d16b689e03c3232014aa6f4e4784eec7f"
+                        "hash": "894772d29f2a43ce211b4b6853e235a83ed9c7fa"
                     }
                 },
                 "other.hpp": {
@@ -103,7 +113,7 @@
                         "defined": [
                             "other.hpp"
                         ],
-                        "hash": "e136acf9e1ec1d7945c536f0c4830cbca7576787"
+                        "hash": "c680a6d701830cf4b942af57e37d88872fb98e09"
                     }
                 },
                 "other.cpp": {

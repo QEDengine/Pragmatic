@@ -82,7 +82,7 @@ def save_meta(sort_keys=False) -> None:
 	patch = [op for op in patch if op['path'].rsplit('/', 1)[-1] in filters]
 
 	with open(shared.meta_path, 'w') as meta_file:
-		json.dump(jsonpatch.apply_patch(shared.meta, patch), meta_file, indent=4, sort_keys=sort_keys)
+		json.dump(jsonpatch.apply_patch(current_json, patch), meta_file, indent=4, sort_keys=sort_keys)
 
 #endregion
 
