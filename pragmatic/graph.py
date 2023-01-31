@@ -4,6 +4,7 @@ from typing import Tuple
 
 from typeguard import typechecked
 import networkx as nx
+import jsonpatch
 
 from . import shared
 from . import utility
@@ -41,6 +42,7 @@ def check_hashes(graph: nx.DiGraph) -> set[str]:
 			node_file_hash = utility.hash_file(node_path)
 		else:
 			updated_nodes.add(node)
+			continue
 
 		# Initialize metadata attribute
 		if 'metadata' not in attribute:
@@ -63,9 +65,10 @@ def get_edges_from_node(graph: nx.DiGraph, node: str) -> list[Tuple[Any, Any]]:
             next_nodes.append(successor)
     return edges
 
-def topological_sort(graph: nx.DiGraph) -> list[Tuple[Any, Any]]:
-	sorted_nodes = list(nx.topological_sort(graph))
-	return [(sorted_nodes[i], sorted_nodes[i + 1]) for i in range(len(sorted_nodes) - 1)]
+@typechecked
+def sort_edges(graph: nx.DiGraph):
+	relation_order = {'include': 1, 'build': 2, 'link': 3}
+	return sorted(graph.edges(), key=lambda x: relation_order[graph.edges[x]['relation']])
 
 @typechecked
 def iterate() -> None:
@@ -87,41 +90,31 @@ def iterate() -> None:
 		# Get edges to update
 		updated_nodes = check_hashes(graph)
 
-		edges_to_update = set()
-		edge: tuple[str, str]
-		for edge, attribute in graph.edges().items():
-			edge_nodes = set()
-			edge_nodes.add(edge[0])
-			edge_nodes.add(edge[1])
-			for define in attribute['metadata']['defined']:
-				edge_nodes.add(define)
+		# Get edges to be updated
+		edges_to_update = []
+		for node in updated_nodes:
+			edges_to_update.append(get_edges_from_node(graph, node))
+		edges_to_update = utility.join_list_of_tuples(edges_to_update)
 
-			intersection = edge_nodes & updated_nodes
-			if len(intersection) > 0:
-				edges_to_update.add(edge)
+		sorted_edges = sort_edges(graph.edge_subgraph(edges_to_update))
 
-		# Sort edges
-		subgraph = graph.edge_subgraph(edges_to_update)
-		sorted_paths = topological_sort(subgraph)
-
+		# Execute edges by relation type
 		edge_relation = nx.get_edge_attributes(graph, 'relation')
-		edge_metadata = nx.get_edge_attributes(graph, 'metadata')
 		node_metadata = nx.get_node_attributes(graph, 'metadata')
-		for edge in sorted_paths:
-			print(edge_relation[edge])
-			print(edge_metadata[edge])
+		for edge in sorted_edges:
+			if edge in edge_relation:
+				match edge_relation[edge]:
+					case 'include':
+						did_process = True
+						node_metadata[edge[1]]['hash'] = 0
+						check_hashes(graph.subgraph(edge[0]))
+					case 'build':
+						did_process = True
+						utility.run_build(edge)
+						check_hashes(graph.subgraph(edge))
+					case 'link':
+						link_edges.add(edge)
 
-			match edge_relation[edge]:
-				case 'include':
-					did_process = True
-					node_metadata[edge[1]]['hash'] = 0
-				case 'build':
-					did_process = True
-					utility.run_build(edge)
-					check_hashes(graph.subgraph(edge))
-				case 'link':
-					link_edges.add(edge)
-		
 		retrieve_meta_from_graph(graph)
 		utility.save_meta()
 

@@ -5,6 +5,7 @@ from pathlib import Path
 
 import networkx as nx
 from typeguard import typechecked
+import jsonpatch
 
 from . import shared
 
@@ -43,10 +44,13 @@ def hash_str(str: str) -> str:
 @typechecked
 def load_meta() -> bool:
 	success: bool = False
-	if shared.meta_path.exists():
-		with open(shared.meta_path, 'r', encoding='utf-8') as meta_file:
-			shared.meta = json.load(meta_file)
-		success = True
+	try:
+		if shared.meta_path.exists():
+			with open(shared.meta_path, 'r', encoding='utf-8') as meta_file:
+				shared.meta = json.load(meta_file)
+			success = True
+	except json.JSONDecodeError:
+		shared.meta_path.unlink()
 
 	if not success:
 		return_code = 1
@@ -67,8 +71,18 @@ def load_meta() -> bool:
 
 @typechecked
 def save_meta(sort_keys=False) -> None:
+	current_json = None
+	with open(shared.meta_path, 'r', encoding='utf-8') as meta_file:
+		current_json = json.load(meta_file)
+
+	# Generate patch
+	patch = jsonpatch.make_patch(current_json, shared.meta)
+	# Filter out only hashes
+	filters = ['hash']
+	patch = [op for op in patch if op['path'].rsplit('/', 1)[-1] in filters]
+
 	with open(shared.meta_path, 'w') as meta_file:
-		json.dump(shared.meta, meta_file, indent=4, sort_keys=sort_keys)
+		json.dump(jsonpatch.apply_patch(shared.meta, patch), meta_file, indent=4, sort_keys=sort_keys)
 
 #endregion
 

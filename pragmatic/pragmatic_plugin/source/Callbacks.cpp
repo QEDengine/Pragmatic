@@ -14,13 +14,13 @@ namespace QED::Pragmatic
 	{
 		if (Reason == clang::PPCallbacks::EnterFile && FileType == clang::SrcMgr::CharacteristicKind::C_User)
 		{
-			llvm::outs() << "entering " << Loc.printToString(sourceManager) << '\n';
+			llvm::outs() << sourceManager.getFileEntryForID(sourceManager.getMainFileID())->getName() << '\n';
 		}
 	}
 
 	void Callbacks::EndOfMainFile()
 	{
-		llvm::outs() << "end of main file" << '\n';
+		// llvm::outs() << "end of main file" << '\n';
 		Meta::Instance().Write(preprocessor);
 	}
 
