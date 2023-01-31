@@ -58,6 +58,6 @@ namespace QED::Pragmatic
 		Meta::Node(target, source);
 
 		// Add edge if not already in meta
-		Meta::Edge(source, target, INCLUDE_TOKEN, source);
+		Meta::Edge(target, source, INCLUDE_TOKEN, source);
 	}
 } // namespace QED::Pragmatic

@@ -34,8 +34,8 @@
 			"program": "${workspaceFolder}/pragmatic/LLVM/bin/clang.exe",
 			"args": [
 				// "-E",
-				"-c",
-				// "-fsyntax-only",
+				// "-c",
+				"-fsyntax-only",
 				"-std=c++17",
 				"debug_source.cpp",
 				"-o", "debug_source.o",

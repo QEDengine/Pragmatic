@@ -15,8 +15,6 @@ import _thread as thread
 
 import click
 from flask import Flask, jsonify, render_template, Response
-import pandas as pd
-import numpy as np
 
 from . import shared
 from . import graph
