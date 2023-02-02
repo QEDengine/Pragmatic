@@ -21,9 +21,9 @@
 			"name": "Pragmatic Tests",
 			"type": "python",
 			"request": "launch",
-			"module": "unittest",
+			"program": "${workspaceFolder}/tests/test_runner.py",
 			"cwd": "${workspaceFolder}",
-			"args": ["discover", "-s", "tests"],
+			"args": [],
 			"justMyCode": false
 		},
 		{

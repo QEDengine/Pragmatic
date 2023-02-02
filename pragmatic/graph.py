@@ -71,7 +71,8 @@ def sort_edges(graph: nx.DiGraph):
 	return sorted(graph.edges(), key=lambda x: relation_order[graph.edges[x]['relation']])
 
 @typechecked
-def iterate() -> None:
+def iterate() -> tuple[bool, int]:
+	success = True
 	did_process = True
 	iteration_count = 0
 
@@ -117,6 +118,9 @@ def iterate() -> None:
 
 		retrieve_meta_from_graph(graph)
 		utility.save_meta()
+		if iteration_count > 10:
+			success = False
+			break
 
 	utility.run_link(graph, link_edges)
 	all_link_edges = utility.join_list_of_tuples(link_edges)
@@ -126,4 +130,5 @@ def iterate() -> None:
 	utility.save_meta()
 
 	print(f'Iteration count : {iteration_count}')
+	return (success, iteration_count)
 	

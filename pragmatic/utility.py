@@ -97,9 +97,10 @@ def resolve_meta_paths(meta_path: str) -> Path:
 #region Subprocess & execution
 
 @typechecked
-def run_subprocess(command: str, cwd: Path) -> int:
+def run_subprocess(command: str, cwd: Path) -> tuple[int|None, str]:
 	# invoke process
 	process = subprocess.Popen(command, cwd=cwd, shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+	output_log = ''
 
 	# Poll process.stdout to show stdout live
 	while True:
@@ -107,8 +108,10 @@ def run_subprocess(command: str, cwd: Path) -> int:
 		if process.poll() is not None:
 			break
 		if output:
-			print(output.decode())
-	return process.poll()
+			output_str = output.decode()
+			print(output_str)
+			output_log += output_str
+	return (process.poll(), output_log)
 
 @typechecked
 def run_syntax_only(path: Path) -> int:
@@ -152,7 +155,7 @@ def execute_link(in_paths: set[str], out_path: str) -> int:
 	])
 
 	if all(Path(rel_in_path).is_file for rel_in_path in rel_in_paths):
-		return_code = run_subprocess(command, shared.initial_path_dir)
+		return_code, out_str = run_subprocess(command, shared.initial_path_dir)
 		return return_code
 	else: return 1
 
@@ -174,7 +177,7 @@ def execute(in_path: Path|str, out_path: Path|str=None, options: list[str]|str=[
 		command += ' ' + ' '.join(interpret_metadata(shared.meta['graphs'][0]['nodes'][str(rel_in_path)]['metadata']))
 	
 	if rel_in_path.is_file and rel_in_path.suffix == '.cpp':
-		return_code = run_subprocess(command, shared.initial_path_dir)
+		return_code, out_str = run_subprocess(command, shared.initial_path_dir)
 		return return_code
 	else: return 1
 
