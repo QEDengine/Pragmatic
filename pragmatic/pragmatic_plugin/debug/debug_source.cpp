@@ -8,7 +8,6 @@
 #pragma link "debug_source.o" "HelloWorld.exe"
 
 #include "other.hpp"
-
 #include "debug_source.hpp"
 
 void print()

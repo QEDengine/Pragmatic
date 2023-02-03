@@ -19,3 +19,4 @@ pragmatic_preamble_path: Path = pragmatic_include_path.joinpath('preamble.hpp')
 # Variables
 meta: json = None
 server: bool = False
+iteration_count: int = 0

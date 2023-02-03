@@ -74,12 +74,11 @@ def sort_edges(graph: nx.DiGraph):
 def iterate() -> tuple[bool, int]:
 	success = True
 	did_process = True
-	iteration_count = 0
 
 	link_edges = set()
 
 	while did_process:
-		iteration_count += 1
+		shared.iteration_count += 1
 		did_process = False
 
 		# Load meta file & compile initial file
@@ -118,7 +117,7 @@ def iterate() -> tuple[bool, int]:
 
 		retrieve_meta_from_graph(graph)
 		utility.save_meta()
-		if iteration_count > 10:
+		if shared.iteration_count > 10:
 			success = False
 			break
 
@@ -129,6 +128,6 @@ def iterate() -> tuple[bool, int]:
 	retrieve_meta_from_graph(graph)
 	utility.save_meta()
 
-	print(f'Iteration count : {iteration_count}')
-	return (success, iteration_count)
+	print(f'Iteration count : {shared.iteration_count}')
+	return (success, shared.iteration_count)
 	

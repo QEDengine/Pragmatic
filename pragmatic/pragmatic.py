@@ -130,17 +130,23 @@ def build(path: str):
 	# begin build
 	print(f'Building {shared.initial_path}')
 
-	return graph.iterate()
+	graph.iterate()
 	# graph.iterate_graph()
 
 # Main
 
-def main():
+def initialize():
 	print(f'Running pragmatic version {__version__}.')
-
 
 	cli.add_command(init)
 	cli.add_command(build)
+
+	shared.meta = None
+	shared.meta_path = None
+	shared.iteration_count = 0
+
+def main():
+	initialize()
 
 	try:
 		cli()
