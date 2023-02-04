@@ -1,22 +1,30 @@
 #pragma once
 
 // Standard library
+#include <string>
+#include <map>
+// Clang
 #include "clang/Basic/Diagnostic.h"
 #include "clang/Lex/Preprocessor.h"
 #include "clang/Serialization/ModuleFileExtension.h"
-#include <string>
 // Exteral
 #include <nlohmann/json.hpp>
 using json = nlohmann::ordered_json;
 
 namespace QED::Pragmatic
 {
+	struct Option
+	{
+		std::string value;
+	};
+	NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(Option, value);
+
 	struct Node
 	{
 		std::string path;
 		std::vector<std::string> defines;
 
-		std::string standard;
+		std::map<std::string, Option> options;
 	};
 
 	struct Edge
@@ -24,8 +32,9 @@ namespace QED::Pragmatic
 		std::string source;
 		std::string target;
 		std::string relation;
-
 		std::vector<std::string> defines;
+
+		std::vector<Option> options;
 	};
 
 	struct Meta
@@ -42,8 +51,8 @@ namespace QED::Pragmatic
         nlohmann::ordered_json::iterator begin();
         nlohmann::ordered_json::iterator end();
 
-		static void Node(std::string path, std::string defined, std::string standard = "");
-		static void Edge(std::string source, std::string target, std::string relation, std::string defined);
+		static struct Node& Node(std::string path, std::string defined);
+		static struct Edge& Edge(std::string source, std::string target, std::string relation, std::string defined);
 
 		private:
 		::json GeneratePatchesForNodes();

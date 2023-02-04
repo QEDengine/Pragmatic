@@ -66,6 +66,16 @@ def get_edges_from_node(graph: nx.DiGraph, node: str) -> list[Tuple[Any, Any]]:
     return edges
 
 @typechecked
+def get_nodes_leading_to_node(graph: nx.DiGraph, node_name: str, filter_func=None):
+    predecessors = []
+    for pred in graph.predecessors(node_name):
+        edge = graph[pred][node_name]
+        if filter_func is None or filter_func(edge):
+            predecessors.append(pred)
+            predecessors.extend(get_nodes_leading_to_node(graph, pred, filter_func))
+    return predecessors
+
+@typechecked
 def sort_edges(graph: nx.DiGraph):
 	relation_order = {'include': 1, 'build': 2, 'link': 3}
 	return sorted(graph.edges(), key=lambda x: relation_order[graph.edges[x]['relation']])
@@ -76,6 +86,8 @@ def iterate() -> tuple[bool, int]:
 	did_process = True
 
 	link_edges = set()
+
+	rebuild_nodes: set[str] = set()
 
 	while did_process:
 		shared.iteration_count += 1
@@ -89,6 +101,9 @@ def iterate() -> tuple[bool, int]:
 
 		# Get edges to update
 		updated_nodes = check_hashes(graph)
+		for node in rebuild_nodes:
+			updated_nodes.add(node)
+		rebuild_nodes = set()
 
 		# Get edges to be updated
 		edges_to_update = []
@@ -110,8 +125,11 @@ def iterate() -> tuple[bool, int]:
 						check_hashes(graph.subgraph(edge[0]))
 					case 'build':
 						did_process = True
-						utility.run_build(edge)
-						check_hashes(graph.subgraph(edge))
+						return_code = utility.run_build(edge)
+						if return_code == 42:
+							rebuild_nodes.add(edge[0])
+						else:
+							check_hashes(graph.subgraph(edge))
 					case 'link':
 						link_edges.add(edge)
 

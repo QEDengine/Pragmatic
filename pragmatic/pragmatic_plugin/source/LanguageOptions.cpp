@@ -14,8 +14,17 @@ namespace QED::Pragmatic
 		// Always convert to lower case
 		std::transform(standard.begin(), standard.end(), standard.begin(), [](unsigned char c){ return std::tolower(c); });
 
-		// Get meta & save standard
-		Meta::Node(sourceFilePath, sourceFilePath, standard);
+		// Save standard in include edges or source nodes
+		if (includePath != "" && includePath != sourceFilePath)
+		{
+			auto& node = Meta::Node(includePath, includePath);
+			node.options["standard"] = ((struct Option){standard});
+		}
+		else
+		{
+			auto& node = Meta::Node(sourceFilePath, sourceFilePath);
+			node.options["standard"] = ((struct Option){standard});
+		}
 
 		// If not preprocessing with the same standard, raise error
 		if (preprocessor.getLangOpts().LangStd != clang::LangStandard::getLangKind(standard))

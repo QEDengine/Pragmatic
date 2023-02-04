@@ -74,21 +74,24 @@
                 }
             ],
             "nodes": {
-                "debug_source.cpp": {
-                    "metadata": {
-                        "defined": [
-                            "debug_source.cpp"
-                        ],
-                        "standard": "c++17",
-                        "hash": "8af78f018b2b923aba57ebdd1cbd2d176bd065f5"
-                    }
-                },
                 "debug_source.o": {
                     "metadata": {
                         "defined": [
                             "debug_source.cpp"
                         ],
-                        "hash": "8ee9f764216e3e3eda8226f2ec21a00330bb8817"
+                        "hash": "9de752f4c7211a812bcf13741baebe4a087cb08b"
+                    }
+                },
+                "debug_source.cpp": {
+                    "metadata": {
+                        "defined": [
+                            "debug_source.cpp",
+                            "debug_source.hpp"
+                        ],
+                        "options": {
+                            "standard": "c++17"
+                        },
+                        "hash": "de389258c2bb4a67022621e7599cf0378fbde1fc"
                     }
                 },
                 "HelloWorld.exe": {
@@ -97,7 +100,7 @@
                             "debug_source.cpp",
                             "other.hpp"
                         ],
-                        "hash": "894772d29f2a43ce211b4b6853e235a83ed9c7fa"
+                        "hash": "a7ec8f3a52fd9cdddc4a8b11967b4455923c3a82"
                     }
                 },
                 "other.hpp": {
@@ -113,7 +116,7 @@
                         "defined": [
                             "other.hpp"
                         ],
-                        "hash": "c680a6d701830cf4b942af57e37d88872fb98e09"
+                        "hash": "fa717b28dfd71e915e1906ccd11a2c81a11d6cd2"
                     }
                 },
                 "other.cpp": {
@@ -129,7 +132,7 @@
                         "defined": [
                             "debug_source.cpp"
                         ],
-                        "hash": "c7d927027b38807cdb9d2fe7fd1f7dcd12fd4480"
+                        "hash": "46c7b0616dd1550dce9972150251c28558b51d0a"
                     }
                 }
             }

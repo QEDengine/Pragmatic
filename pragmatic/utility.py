@@ -191,9 +191,10 @@ def interpret_metadata(metadata: object) -> list[str]:
 	}
 
 	arguments = []
-	for key in metadata:
-		interpreted_arg = metadata_handlers.get(key, lambda n: None)(metadata[key])
-		if interpreted_arg is not None: arguments.append(interpreted_arg)
+	if 'options' in metadata:
+		for option, value in metadata['options'].items():
+			interpreted_arg = metadata_handlers.get(option, lambda n: None)(value)
+			if interpreted_arg is not None: arguments.append(interpreted_arg)
 
 	return arguments
 

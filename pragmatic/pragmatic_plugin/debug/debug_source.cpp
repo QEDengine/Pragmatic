@@ -2,7 +2,7 @@
 #include <iostream>
 #include <string>
 
-#pragma standard "C++17"
+
 
 #pragma build "debug_source.cpp" "debug_source.o"
 #pragma link "debug_source.o" "HelloWorld.exe"

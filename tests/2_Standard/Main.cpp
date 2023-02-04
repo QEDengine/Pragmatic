@@ -1,5 +1,5 @@
-#pragma build "Standard.cpp" "Standard.o"
-#pragma link "Standard.o" "Standard.exe"
+#pragma build "Main.cpp" "Main.o"
+#pragma link "Main.o" "Standard.exe"
 #pragma standard "C++17"
 
 #include <iostream>

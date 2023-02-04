@@ -132,11 +132,10 @@ namespace QED::Pragmatic
 		return json.end();
 	}
 
-	void Meta::Node(std::string path, std::string defined, std::string standard)
+	Node& Meta::Node(std::string path, std::string defined)
 	{
 		auto& meta = Instance();
 		// Check if there is already a node defined at path
-		bool found = false;
 		for (auto& node : meta.nodes)
 		{
 			// There is a node with the same path
@@ -150,23 +149,19 @@ namespace QED::Pragmatic
 				}) == defines.end())
 					defines.push_back(defined);
 
-				if (standard != "")
-					node.standard = standard;
-
-				found = true;
-				break;
+				return node;
 			}
 		}
 
-		if (!found)
-			meta.nodes.push_back((struct Node){path, {defined}, standard});
+		// If not found, create new node
+		meta.nodes.push_back((struct Node){path, {defined}});
+		return meta.nodes.back();
 	}
 
-	void Meta::Edge(std::string source, std::string target, std::string relation, std::string defined)
+	Edge& Meta::Edge(std::string source, std::string target, std::string relation, std::string defined)
 	{
 		auto& meta = Instance();
 		// Check if there is already an edge defined with same source, target & relation
-		bool found = false;
 		for (auto& edge : meta.edges)
 		{
 			// There is an edge with the same source, target & relation
@@ -180,13 +175,13 @@ namespace QED::Pragmatic
 				}) == defines.end())
 					defines.push_back(defined);
 
-				found = true;
-				break;
+				return edge;
 			}
 		}
 
-		if (!found)
-			meta.edges.push_back((struct Edge){source, target, relation, {defined}});
+		// If not found, create new node
+		meta.edges.push_back((struct Edge){source, target, relation, {defined}});
+		return meta.edges.back();
 	}
 
 	::json Meta::GeneratePatchesForNodes()
@@ -208,7 +203,7 @@ namespace QED::Pragmatic
 		}
 
 		// Apply new nodes patch
-		json.patch_inplace(patches);
+		auto tmp_json = json.patch(patches);
 
 		// Iterate over nodes & generate changes patch
 		for (auto it = jsonNodes.begin(); it != jsonNodes.end(); ++it)
@@ -236,15 +231,27 @@ namespace QED::Pragmatic
 				for (auto& defintionToRemove : defintionsToRemove)
 					patches.push_back({{"op", "remove"}, {"path", "/graphs/0/nodes/" + it.key() + "/metadata/defined/" + defintionToRemove}});
 
+			// Update options
 			if (MatchPath(nodes, it.key()))
 			{
+				// Create options json
+				auto optionsJson = ::json::object();
+				{
+					auto& node = GetNode(nodes, it.key());
+					for (std::map<std::string, Option>::iterator optIt = node.options.begin(); optIt != node.options.end(); ++optIt)
+						optionsJson[optIt->first] = optIt->second.value;
+				}
+
+				// Add options
 				auto& node = GetNode(nodes, it.key());
-				if (node.standard == "" && metadata.contains("standard"))
-					patches.push_back({{"op", "remove"}, {"path", "/graphs/0/nodes/" + it.key() + "/metadata/standard"}});
-				else if (node.standard != "" && !metadata.contains("standard"))
-					patches.push_back({{"op", "add"}, {"path", "/graphs/0/nodes/" + it.key() + "/metadata/standard"}, {"value", node.standard}});
-				else if (metadata.contains("standard") && node.standard != metadata["standard"])
-					patches.push_back({{"op", "replace"}, {"path", "/graphs/0/nodes/" + it.key() + "/metadata/standard"}, {"value", node.standard}});
+				size_t optionsSize = node.options.size();
+				bool optionsAreInMetadata = metadata.contains("options");
+				if (optionsSize == 0 && optionsAreInMetadata)
+					patches.push_back({{"op", "remove"}, {"path", "/graphs/0/nodes/" + it.key() + "/metadata/options"}});
+				else if (optionsSize != 0 && !optionsAreInMetadata)
+					patches.push_back({{"op", "add"}, {"path", "/graphs/0/nodes/" + it.key() + "/metadata/options"}, {"value", optionsJson}});
+				else if (optionsAreInMetadata && optionsJson != metadata["options"])
+					patches.push_back({{"op", "replace"}, {"path", "/graphs/0/nodes/" + it.key() + "/metadata/options"}, {"value", optionsJson}});
 			}
 		}
 
@@ -307,6 +314,35 @@ namespace QED::Pragmatic
 			else
 				for (auto& defintionToRemove : defintionsToRemove)
 					patches.push_back({{"op", "remove"}, {"path", "/graphs/0/edges/" + indexStr + "/metadata/defined/" + defintionToRemove}});
+
+			// // Update options
+			// if (MatchEdge(edges, current["source"], current["target"], current["relation"]))
+			// {
+			// 	// Create options json
+			// 	auto optionsJson = ::json::array();
+			// 	{
+			// 		auto& edge = GetEdge(edges, current["source"], current["target"], current["relation"]);
+			// 		for (auto& option : edge.options)
+			// 		{
+			// 			auto object = json::object();
+			// 			object["order"] = option.index;
+			// 			object["type"] = option.type;
+			// 			object["value"] = option.value;
+			// 			optionsJson.emplace_back(object);
+			// 		}
+			// 	}
+
+			// 	// Add options
+			// 	auto& edge = GetEdge(edges, current["source"], current["target"], current["relation"]);
+			// 	size_t optionsSize = edge.options.size();
+			// 	bool optionsAreInMetadata = metadata.contains("options");
+			// 	if (optionsSize == 0 && optionsAreInMetadata)
+			// 		patches.push_back({{"op", "remove"}, {"path", "/graphs/0/edges/" + indexStr + "/metadata/options"}});
+			// 	else if (optionsSize != 0 && !optionsAreInMetadata)
+			// 		patches.push_back({{"op", "add"}, {"path", "/graphs/0/edges/" + indexStr + "/metadata/options"}, {"value", optionsJson}});
+			// 	else if (optionsAreInMetadata && optionsJson != metadata["options"])
+			// 		patches.push_back({{"op", "replace"}, {"path", "/graphs/0/edges/" + indexStr + "/metadata/options"}, {"value", optionsJson}});
+			// }
 		}
 
 		return patches;
@@ -331,6 +367,9 @@ namespace QED::Pragmatic
 
 		auto nodePatch = GeneratePatchesForNodes();
 		auto edgePatch = GeneratePatchesForEdges();
+
+		llvm::outs() << nodePatch.dump(1) << '\n';
+		llvm::outs() << edgePatch.dump(1) << '\n';
 
 		// Apply changes
 		json.patch_inplace(nodePatch);

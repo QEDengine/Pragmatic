@@ -22,6 +22,7 @@ namespace QED { namespace Pragmatic
 
 		private:
 		std::string standard = "";
+		std::uint16_t optionIndex = 0;
 
 		protected:
 		virtual bool CheckTokens(clang::Preprocessor &preprocessor, std::vector<std::string> tokens, clang::DiagnosticsEngine& diagnostics, clang::SourceLocation sourceLocation) override;
