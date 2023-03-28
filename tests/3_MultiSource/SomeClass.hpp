@@ -6,6 +6,8 @@
 // Standard library
 #include <string>
 
+#include "SharedSettings.hpp"
+
 class SomeClass
 {
 	public: // Ctor / dtor

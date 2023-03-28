@@ -24,7 +24,8 @@ namespace QED { namespace Pragmatic
 		sourceFilePath = NormalizePath(sourceManager.getFilename(sourceLocation).str(), sourceManager.getFileManager().getFileSystemOpts().WorkingDir);
 		sourceFileDir = GetDirectoryFromPath(sourceFilePath);
 		auto fullSourceLocation = clang::FullSourceLoc(sourceLocation, sourceManager);
-		includePath = sourceManager.getFilename(sourceManager.getIncludeLoc(fullSourceLocation.getFileID())).str();
+		includePath = NormalizePath(sourceManager.getFilename(sourceManager.getIncludeLoc(fullSourceLocation.getFileID())).str(), sourceManager.getFileManager().getFileSystemOpts().WorkingDir);
+		mainFile = sourceManager.getFileEntryForID(sourceManager.getMainFileID())->getName();
 		
 		// Get tokens
 		int format_index = 0;

@@ -203,6 +203,8 @@ namespace QED::Pragmatic
 		}
 
 		// Apply new nodes patch
+		llvm::outs() << json.dump() << "\n";
+		llvm::outs() << patches.dump() << "\n";
 		auto tmp_json = json.patch(patches);
 
 		// Iterate over nodes & generate changes patch

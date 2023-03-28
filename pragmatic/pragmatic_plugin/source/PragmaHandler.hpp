@@ -34,6 +34,7 @@ namespace QED { namespace Pragmatic
 		std::string sourceFilePath;
 		std::string sourceFileDir;
 		std::string includePath;
+		std::string mainFile;
 
 		public: // Clang hooks
 		virtual void HandlePragma(clang::Preprocessor &preprocessor, clang::PragmaIntroducer introducer, clang::Token &sourceToken) final;

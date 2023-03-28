@@ -17,7 +17,7 @@ namespace QED::Pragmatic
 		// Save standard in include edges or source nodes
 		if (includePath != "" && includePath != sourceFilePath)
 		{
-			auto& node = Meta::Node(includePath, includePath);
+			auto& node = Meta::Node(mainFile, mainFile);
 			node.options["standard"] = ((struct Option){standard});
 		}
 		else
