@@ -64,8 +64,8 @@
 			"args": [
 				"-c",
 				"-fsyntax-only",
-				"SomeClass.cpp",
-				"-o", "SomeClass.o",
+				"Main.cpp",
+				"-o", "Main.o",
 				"-fplugin=${workspaceFolder}/pragmatic/pragmatic_plugin/build/PragmaticPlugin.dll",
 				"-DPRAGMATIC_FILE_PATH=\"${workspaceFolder}/tests/3_MultiSource/meta.json\"",
 				"--include=${workspaceFolder}/pragmatic/include/preamble.hpp"
